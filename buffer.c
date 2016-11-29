@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "main.h"
 
@@ -12,7 +13,7 @@ read_file(void)
 {
 	/* fill buffer with string */
 	Buffer *buffer = malloc(sizeof(Buffer));
-	Line   *prev   = NULL;
+	Line   *line   = NULL;
 	FILE   *fp     = stdin;
 	char    s[MAX_LINE_SIZE];
 
@@ -25,18 +26,22 @@ read_file(void)
 
 	/* doubly linked list */
 	while (fgets(s, MAX_LINE_SIZE, fp)) {
-		buffer->last = malloc(sizeof(Line));
-		buffer->last->text = s;
-		buffer->last->prev = prev;
-		buffer->last->next = NULL;
+		line = malloc(sizeof(Line));
+		line->prev = buffer->last;
+		line->next = NULL;
 
-		if (prev) {
-			buffer->last->prev->next = buffer->last;
+		if (buffer->last) {
+			buffer->last->next = line;
 		} else {
-			buffer->first = buffer->last;
+			buffer->first = line;
 		}
 
-		prev = buffer->last;
+		/* set line content without trailing newline */
+		line->text = malloc(sizeof(s));
+		strcpy(line->text, s);
+		line->text[strlen(line->text) - 1] = '\0';
+
+		buffer->last = line;
 	}
 
 	return buffer;
@@ -49,18 +54,14 @@ read_file(void)
 void
 free_buffer(Buffer *buffer)
 {
-	Line *next = buffer->first;
-
 	while (buffer->first) {
-		next = buffer->first->next;
 
 		buffer->first->text = NULL;
 		free(buffer->first->text);
 
-		buffer->first = NULL;
 		free(buffer->first);
 
-		buffer->first = next;
+		buffer->first = buffer->first->next;
 	}
 
 	free(buffer);
