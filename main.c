@@ -8,13 +8,20 @@ void
 die(const char *message)
 {
 	perror(message);
+	exit(EXIT_FAILURE);
 }
+
 
 int
 main(int argc, char *arcgv[])
 {
-	Buffer *buffer = read_file();
-	free_buffer(buffer);
+	/* fopen */
 
-	return 0;
+	Buffer *buffer = file_read(stdin);
+
+	buffer_free(buffer);
+
+	/* fclose */
+
+	return EXIT_SUCCESS;
 }

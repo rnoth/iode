@@ -24,9 +24,13 @@ typedef struct Buffer {
 
 
 /* main */
+
 void     die(const char *);
 
 
 /* buffer */
-Buffer * read_file(void);
-void     free_buffer(Buffer *);
+
+Buffer * file_read(FILE *);
+void     buffer_free(Buffer *);
+void     line_add_end(Buffer *, char *);
+Line   * line_new(char *s);

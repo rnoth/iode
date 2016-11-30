@@ -9,59 +9,76 @@
  * read the file in a doubly linked list of lines.
  */
 Buffer *
-read_file(void)
+file_read(FILE *fp)
 {
 	/* fill buffer with string */
 	Buffer *buffer = malloc(sizeof(Buffer));
-	Line   *line   = NULL;
-	FILE   *fp     = stdin;
 	char    s[MAX_LINE_SIZE];
-
-	if (!fp)
-		die("Can not open file for reading.");
 
 	/* init empty buffer */
 	buffer->first = buffer->last = buffer->current = NULL;
 	buffer->total = 0;
 
-	/* doubly linked list */
-	while (fgets(s, MAX_LINE_SIZE, fp)) {
-		line = malloc(sizeof(Line));
-		line->prev = buffer->last;
-		line->next = NULL;
-
-		if (buffer->last) {
-			buffer->last->next = line;
-		} else {
-			buffer->first = line;
-		}
-
-		/* set line content without trailing newline */
-		line->text = malloc(sizeof(s));
-		strcpy(line->text, s);
-		line->text[strlen(line->text) - 1] = '\0';
-
-		buffer->last = line;
-	}
+	while (fgets(s, MAX_LINE_SIZE, fp))
+		line_add_end(buffer, s);
 
 	return buffer;
 }
 
 
 /*
- * Free the buffer, also recursing the doubly linked list.
+ * Add a line to the end of a doubly linked list buffer, which may be empty.
  */
 void
-free_buffer(Buffer *buffer)
+line_add_end(Buffer *buffer, char *s)
 {
-	while (buffer->first) {
+	Line *line = line_new(char *s);
 
-		buffer->first->text = NULL;
+	line->prev = buffer->last;
+	line->next = NULL;
+
+	if (!buffer->total) {
+		buffer->first = line;
+	} else {
+		buffer->last->next = line;
+	}
+	buffer->last = line;
+
+	buffer->total++;
+}
+
+
+/*
+ * Allocates and initialize a new line with the string content.
+ */
+Line *
+line_new(char *s)
+{
+	Line *line = malloc(sizeof(Line));
+
+	line->text = malloc(sizeof(s));
+	strcpy(line->text, s);
+	if (line->text[strlen(line->text) - 1] == '\n')
+		line->text[strlen(line->text) - 1] = '\0';
+}
+
+
+/*
+ * Free the buffer and its lines, starting from the first one.
+ */
+void
+buffer_free(Buffer *buffer)
+{
+	Line *next = NULL;
+
+	for (; buffer->first; buffer->first = next) {
+		next = buffer->first->next;
+
 		free(buffer->first->text);
+		buffer->first->text = NULL;
 
 		free(buffer->first);
-
-		buffer->first = buffer->first->next;
+		buffer->first = NULL;
 	}
 
 	free(buffer);
