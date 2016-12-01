@@ -19,6 +19,11 @@ main(int argc, char *arcgv[])
 
 	Buffer *buffer = file_read(stdin);
 
+	Line *line = NULL;
+
+	for (line = buffer->first; line; line = line->next)
+		puts(line->text);
+
 	buffer_free(buffer);
 
 	/* fclose */

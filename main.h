@@ -31,6 +31,9 @@ void     die(const char *);
 /* buffer */
 
 Buffer * file_read(FILE *);
-void     buffer_free(Buffer *);
-void     line_add_end(Buffer *, char *);
 Line   * line_new(char *s);
+void     line_add_end(Buffer *, Line *line);
+void     buffer_free(Buffer *);
+void     buffer_print(Buffer *);
+
+/* draw */

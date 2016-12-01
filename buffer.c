@@ -20,9 +20,26 @@ file_read(FILE *fp)
 	buffer->total = 0;
 
 	while (fgets(s, MAX_LINE_SIZE, fp))
-		line_add_end(buffer, s);
+		line_add_end(buffer, line_new(s));
 
 	return buffer;
+}
+
+
+/*
+ * Allocates and initialize a new line with the string content.
+ */
+Line *
+line_new(char *s)
+{
+	Line *line = malloc(sizeof(Line));
+
+	line->text = malloc(strlen(s) * sizeof(char));
+	strcpy(line->text, s);
+	if (line->text[strlen(line->text) - 1] == '\n')
+		line->text[strlen(line->text) - 1] = '\0';
+
+	return line;
 }
 
 
@@ -30,10 +47,8 @@ file_read(FILE *fp)
  * Add a line to the end of a doubly linked list buffer, which may be empty.
  */
 void
-line_add_end(Buffer *buffer, char *s)
+line_add_end(Buffer *buffer, Line *line)
 {
-	Line *line = line_new(char *s);
-
 	line->prev = buffer->last;
 	line->next = NULL;
 
@@ -49,18 +64,8 @@ line_add_end(Buffer *buffer, char *s)
 
 
 /*
- * Allocates and initialize a new line with the string content.
+ * Insert a line before the specified line.
  */
-Line *
-line_new(char *s)
-{
-	Line *line = malloc(sizeof(Line));
-
-	line->text = malloc(sizeof(s));
-	strcpy(line->text, s);
-	if (line->text[strlen(line->text) - 1] == '\n')
-		line->text[strlen(line->text) - 1] = '\0';
-}
 
 
 /*
