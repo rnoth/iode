@@ -20,14 +20,14 @@ draw_char(char **character, char **text, int col)
 
 	if (ISASCII(t[0])) {
 		if (isprint(t[0])) {
-			c[0] = t[1]; c[1] = '\0';
+			c[0] = t[0]; c[1] = '\0';
 			width = 1;
 
 		} else if (t[0] == '\t') {
 			c[0] = '\t'; c[1] = '\0';
 			width = 8 - (col % 8);
 
-		} else if (t[0] < 0x1f) {
+		} else if (ISCONTROL(t[0])) {
 			sprintf(c, "\033[1;30m^%c\033[0m", t[0] + '@');
 			width = 2;
 

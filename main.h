@@ -2,8 +2,9 @@
 
 
 /* thanks to martanne@brain-dump.org, this is pretty neat */
-#define ISASCII(c) ((unsigned char) c <  0x80)
-#define ISUTF8(c)  ((unsigned char) c >= 0x80)
+#define ISCONTROL(c)  ((unsigned char) c <  0x1f)
+#define ISASCII(c)    ((unsigned char) c <  0x80)
+#define ISUTF8(c)     ((unsigned char) c >= 0x80)
 
 
 /*
