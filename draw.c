@@ -69,8 +69,8 @@ draw_line(Line *line, int cols)
 		fputs(c, stdout);
 
 		/* not enough space to fit next char onscreen */
-		if (cols - col <= 1 && text[1]) {
-			fputc('|', stdout);
+		if (cols - col < 2 && text[0] && text[1]) {
+			fputs("\033[1;31m>\033[0m", stdout);
 			break;
 		}
 	}
