@@ -1,6 +1,11 @@
 #define MAX_LINE_SIZE 2048
 
 
+/* thanks to martanne@brain-dump.org, this is pretty neat */
+#define ASCII(c) ((unsigned char) c <  0x80)
+#define UTF8(c)  ((unsigned char) c >= 0x80)
+
+
 /*
  * Doubly linked list of lines.
  */
@@ -37,3 +42,8 @@ void     buffer_free(Buffer *);
 void     buffer_print(Buffer *);
 
 /* draw */
+
+void     draw_lines(Line *, int, int);
+void     draw_line(Line *, int);
+int      draw_char(char *, int, int *);
+

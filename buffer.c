@@ -35,7 +35,7 @@ line_new(char *s)
 	Line *line = malloc(sizeof(Line));
 
 	line->text = malloc(strlen(s) * sizeof(char));
-	strcpy(line->text, s);
+	strcpy(line->text, s ? s : "");
 	if (line->text[strlen(line->text) - 1] == '\n')
 		line->text[strlen(line->text) - 1] = '\0';
 

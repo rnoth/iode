@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 #include "main.h"
 
@@ -15,14 +16,12 @@ die(const char *message)
 int
 main(int argc, char *arcgv[])
 {
+	int tty_fd = open("/dev/tty", O_RDWR);
 	/* fopen */
 
 	Buffer *buffer = file_read(stdin);
 
-	Line *line = NULL;
-
-	for (line = buffer->first; line; line = line->next)
-		puts(line->text);
+	draw_lines(buffer->first, 10, tty_fd);
 
 	buffer_free(buffer);
 
