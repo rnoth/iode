@@ -2,8 +2,8 @@
 
 
 /* thanks to martanne@brain-dump.org, this is pretty neat */
-#define ASCII(c) ((unsigned char) c <  0x80)
-#define UTF8(c)  ((unsigned char) c >= 0x80)
+#define ISASCII(c) ((unsigned char) c <  0x80)
+#define ISUTF8(c)  ((unsigned char) c >= 0x80)
 
 
 /*
@@ -45,5 +45,4 @@ void     buffer_print(Buffer *);
 
 void     draw_lines(Line *, int, int);
 void     draw_line(Line *, int);
-int      draw_char(char *, int, int *);
-
+int      draw_char(char **, char **, int);
