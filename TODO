@@ -27,42 +27,14 @@ ________________________________________________________________________________
 	it.
 
 
-Diff-based history
+Line-based history
 ________________________________________________________________________________
 
-	Generate a simplistic diff for every change (in plain text, or with
-	an 'History' C struct).
+	For every change, remove the changed / deleted line from the buffer,
+	then add these lines to an array of charges, containing buffers.
 
-	Do not hide deleted lines.  Make them unreachable, but keep them
-	onscreen, grayed out (with a mode to disable this).  Then, while
-	saving, remove them from the screen.
-
-	Use a line struct with states: modified (the text content has been
-	modified, with an array of previous changes for this line), added
-	(the line is new, an there is an empty array as history), deleted
-	(for use with visual history).
-
-	For each state, associate the line number with a color:
-	
-	-	Red if line is grayed out and deleted
-
-	-	Green if some line is inserted
-
-	-	Yellow / Orange if the content is changed
-
-	-	Gray if line remain untouched
-
-	In addition, highlight the current line number.
-
-	On file save, reset all states to saved.
-
-	In the end, keep a separate line change history, and line content
-	history with an array of things that changed in the text strings.
-
-	Use a list of revisions for editing changes, with links to the
-	previous and next revisions in history.  The "next" and "previous"
-	entries of the struct that could evolve from "Line *next" to
-	"Line *next[]".
+	For changed lines, duplicate the line and apply the changes on this new
+	line, so than the previous line keeps its state.
 
 
 Auto-indentation
@@ -124,6 +96,14 @@ $XDG_CACHE_HOME/editor/backups/.+/[0-9]+
 
 Options
 ________________________________________________________________________________
+
+	Use a single int with binary operations: "or" to set and "and" to get.
+
+	OPT_XYZ  =  0b00...010...00
+	              ^     ^-------    Current option switch.
+	              '---------------  Add new ones at the left.
+	              '-----.-----'
+	                    '---------  Total number of options.
 
 
 autoindent

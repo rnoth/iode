@@ -1,10 +1,14 @@
 #define MAX_LINE_SIZE 2048
 
+#define CONTINUE 2
 
 /* thanks to martanne@brain-dump.org, this is pretty neat */
 #define ISCONTROL(c)  ((unsigned char) c <  0x1f)
 #define ISASCII(c)    ((unsigned char) c <  0x80)
 #define ISUTF8(c)     ((unsigned char) c >= 0x80)
+#define CONTROL(c)    (c ^ 0x40)
+#define MIN(X, Y)     (((X) < (Y)) ? (X) : (Y))
+#define MAX(X, Y)     (((X) > (Y)) ? (X) : (Y))
 
 
 /*
@@ -24,8 +28,10 @@ typedef struct Buffer {
 	Line *first;
 	Line *last;
 	Line *current;  /* for walking the doubly linked list faster */
+	Line *top;      /* line at the top of the screen */
 
-	int l, c;
+	int top_l;      /* number of top line displayed on the screen */
+	int l, c;       /* cursor position in line and columns through file */
 } Buffer;
 
 
@@ -42,8 +48,16 @@ void     line_add_end(Buffer *, Line *line);
 void     buffer_free(Buffer *);
 void     buffer_print(Buffer *);
 
+
 /* draw */
 
-void     draw_lines(Line *, int, int);
-void     draw_line(Line *, int);
 int      draw_char(char **, char **, int);
+void     draw_line(Line *, int);
+void     draw_status_line(Buffer *, int);
+void     draw_screen(Buffer *, int, int);
+int      scroll_down(Buffer *, int, int, int);
+
+
+/* input */
+int      input_key(FILE *);
+int      input_get(FILE *);

@@ -22,6 +22,8 @@ file_read(FILE *fp)
 	while (fgets(s, MAX_LINE_SIZE, fp))
 		line_add_end(buffer, line_new(s));
 
+	buffer->top = buffer->current = buffer->first;
+
 	return buffer;
 }
 
@@ -61,11 +63,6 @@ line_add_end(Buffer *buffer, Line *line)
 
 	buffer->total++;
 }
-
-
-/*
- * Insert a line before the specified line.
- */
 
 
 /*
