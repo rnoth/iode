@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-#include <sys/ioctl.h>
 
 #include "main.h"
 
@@ -62,6 +61,8 @@ draw_line(Line *line, int cols)
 	 *                1 null byte */
 	char *c = malloc(16 * sizeof(char)), *text = line->text;
 
+	fputs("\033[K", stderr);
+
 	/* draw chars until the screen is filled or end of string */
 	for (col = 0; text[0] && cols - col > 0;) {
 		col += draw_char(&c, &text, col);
@@ -94,36 +95,67 @@ draw_status_line(Buffer *buffer, int cols)
 void
 draw_screen(Buffer *buffer, int rows, int cols)
 {
-	struct winsize w;
 	Line *line = NULL;
+		
+	fputs("\033[s", stderr);
 	
 	for (line = buffer->top; line && rows > 1; line = line->next, rows--)
 		draw_line(line, cols);
 
-	draw_status_line(buffer, w.ws_col);
+	draw_status_line(buffer, cols);
+
+	fputs("\033[u", stderr);
 }
 
 
-int
-scroll_down(Buffer *buffer, int top_l, int rows, int cols)
+/*
+ * Scroll up one line using escape sequences, print the new line, then print
+ * the status line.
+ */
+void
+scroll_up(Buffer *buffer, int rows, int cols)
 {
-	int i;
+	if (!buffer->top->prev)
+		return;
+
+	buffer->top = buffer->top->prev;
+
+	/* save cursor position, go to at the bottom, scroll one line up */
+	fputs("\033[s\033[0;0H\033M", stderr);
+
+	draw_line(buffer->top, cols);
+
+	/* go to the bottom */
+	fprintf(stderr, "\033[%d;0H", rows);
+
+	draw_status_line(buffer, cols);
+
+	fputs("\033[u", stderr);
+}
+
+
+/*
+ * Scroll down one line by printing a new line, then print the status line.
+ */
+void
+scroll_down(Buffer *buffer, int rows, int cols)
+{
+	int   i;
 	Line *line = buffer->top;
 
-	if (!buffer->top->next)
-		return EXIT_FAILURE;
+	for (i = 0; i < rows - 1 && line; i++, line = line->next);
+
+	if (!buffer->top->next || !line)
+		return;
 
 	buffer->top = buffer->top->next;
 
 	/* save cursor position, go to the bottom */
 	fprintf(stderr, "\033[s\033[%d;0H", rows);
 
-	for (i = 0; i < rows && line; i++, line = line->next);
 
 	draw_line(line, cols);
 	draw_status_line(buffer, cols);
 
 	fputs("\033[u", stderr);
-
-	return EXIT_SUCCESS;
 }

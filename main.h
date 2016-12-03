@@ -42,7 +42,7 @@ void     die(const char *);
 
 /* buffer */
 
-Buffer * file_read(FILE *);
+Buffer * buffer_read(FILE *);
 Line   * line_new(char *s);
 void     line_add_end(Buffer *, Line *line);
 void     buffer_free(Buffer *);
@@ -55,9 +55,10 @@ int      draw_char(char **, char **, int);
 void     draw_line(Line *, int);
 void     draw_status_line(Buffer *, int);
 void     draw_screen(Buffer *, int, int);
-int      scroll_down(Buffer *, int, int, int);
+void     scroll_up(Buffer *, int, int);
+void     scroll_down(Buffer *, int, int);
 
 
 /* input */
-int      input_key(FILE *);
-int      input_get(FILE *);
+int      input_key(FILE *, int, Buffer *);
+int      input_get(FILE *, int, Buffer *);

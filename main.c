@@ -45,24 +45,27 @@ die(const char *message)
 int
 main(int argc, char *arcgv[])
 {
+	int             exit_code;
 	int             tty_fd     = open("/dev/tty", O_RDWR);
 	FILE           *tty_fp     = fopen("/dev/tty", "r");
+	Buffer         *buffer     = buffer_read(stdin);
 	struct termios  termio_old = set_terminal(tty_fd);
 	struct winsize  w;
-	Buffer         *buffer     = file_read(stdin);
 
 	if (ioctl(tty_fd, TIOCGWINSZ, &w) > 0)
 		die("ioctl");
 
+	fputs("\033[13;0H\033[?16c", stderr);
 	draw_screen(buffer, w.ws_row, w.ws_col);
 
-	input_get(tty_fp);
+	exit_code = input_get(tty_fp, tty_fd, buffer);
 
 	/* resets the terminal to the previous state. */
 	tcsetattr(tty_fd, TCSANOW, &termio_old);
 	fclose(tty_fp);
+	fprintf(stderr, "\033[%d;0H\033[?6c", w.ws_row);
 
 	buffer_free(buffer);
 
-	return EXIT_SUCCESS;
+	return exit_code;
 }

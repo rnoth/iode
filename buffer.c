@@ -9,15 +9,15 @@
  * read the file in a doubly linked list of lines.
  */
 Buffer *
-file_read(FILE *fp)
+buffer_read(FILE *fp)
 {
 	/* fill buffer with string */
 	Buffer *buffer = malloc(sizeof(Buffer));
 	char    s[MAX_LINE_SIZE];
 
 	/* init empty buffer */
-	buffer->first = buffer->last = buffer->current = NULL;
-	buffer->total = 0;
+	buffer->top = buffer->first = buffer->last = buffer->current = NULL;
+	buffer->total = buffer->l = buffer->c = 0;
 
 	while (fgets(s, MAX_LINE_SIZE, fp))
 		line_add_end(buffer, line_new(s));
