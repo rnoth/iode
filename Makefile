@@ -4,19 +4,19 @@ OBJ       = ${SRC:.c=.o}
 
 MANPREFIX = $(PREFIX)
 
-all: clean editor
+all: clean pager
 
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-editor: ${OBJ}
+pager: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
 	rm -f *.o
 
 clean:
-	rm -f editor ${OBJ}
+	rm -f pager ${OBJ}
 
-install: editor
+install: pager
 	mkdir -p  $(PREFIX)/bin $(MANPREFIX)/man/man1
 	cp *.1 $(MANPREFIX)/man/man1/
-	cp editor $(PREFIX)/bin/
+	cp pager $(PREFIX)/bin/
