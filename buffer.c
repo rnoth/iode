@@ -18,6 +18,8 @@ buffer_read(FILE *fp)
 	/* init empty buffer */
 	buffer->top = buffer->first = buffer->last = buffer->current = NULL;
 	buffer->total = buffer->l = buffer->c = 0;
+	buffer->top_l = 1;
+	buffer->operators[0] = '\0';
 
 	while (fgets(s, MAX_LINE_SIZE, fp))
 		line_add_end(buffer, line_new(s));

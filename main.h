@@ -32,6 +32,8 @@ typedef struct Buffer {
 
 	int top_l;      /* number of top line displayed on the screen */
 	int l, c;       /* cursor position in line and columns through file */
+
+	char operators[MAX_LINE_SIZE];
 } Buffer;
 
 
@@ -52,8 +54,9 @@ void     buffer_print(Buffer *);
 /* draw */
 
 int      draw_char(char **, char **, int);
-void     draw_line(Line *, int);
+void     draw_line(Line *, int, int);
 void     draw_status_line(Buffer *, int);
+void     update_status_line(Buffer *, int, int);
 void     draw_screen(Buffer *, int, int);
 void     scroll_up(Buffer *, int, int);
 void     scroll_down(Buffer *, int, int);

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 #include "main.h"
 
@@ -53,7 +54,7 @@ draw_char(char **character, char **text, int col)
  * Draw a full line up to the width of the screen.
  */
 void
-draw_line(Line *line, int cols)
+draw_line(Line *line, int cols, int number)
 {
 	int col;
 	/*                4 max size for UTF-8
@@ -61,12 +62,13 @@ draw_line(Line *line, int cols)
 	 *                1 null byte */
 	char *c = malloc(16 * sizeof(char)), *text = line->text;
 
-	fputs("\033[K", stderr);
+	fprintf(stderr, "\033[K\033[1;30m%7d\033[0m ", number);
 
 	/* draw chars until the screen is filled or end of string */
 	for (col = 0; text[0] && cols - col > 0;) {
 		col += draw_char(&c, &text, col);
 		/* now `c` is set and `text` points to the next char */
+
 		fputs(c, stderr);
 
 		/* not enough space to fit next char onscreen */
@@ -85,7 +87,21 @@ draw_line(Line *line, int cols)
 void
 draw_status_line(Buffer *buffer, int cols)
 {
-	fprintf(stderr, "\033[30;47m\033[K%7d:%d\033[0m", buffer->l, buffer->c);
+	fprintf(stderr, "\033[30;47m\033[K\033[%dC%s %7d:%d\033[0m",
+		cols - 20 - (int) strlen(buffer->operators),
+		buffer->operators, buffer->l, buffer->c);
+}
+
+
+/*
+ * Draw the status line without changing the cursor position
+ */
+void
+update_status_line(Buffer *buffer, int rows, int cols)
+{
+	fprintf(stderr, "\033[s\033[%d;0H", rows);
+	draw_status_line(buffer, cols);
+	fputs("\033[u", stderr);
 }
 
 
@@ -95,12 +111,13 @@ draw_status_line(Buffer *buffer, int cols)
 void
 draw_screen(Buffer *buffer, int rows, int cols)
 {
-	Line *line = NULL;
+	Line *line   = buffer->top;
+	int   number = buffer->top_l;
 		
-	fputs("\033[s", stderr);
+	fputs("\033[s\033[H", stderr);
 	
-	for (line = buffer->top; line && rows > 1; line = line->next, rows--)
-		draw_line(line, cols);
+	for (; line && rows > 1; line = line->next, rows--, number++)
+		draw_line(line, cols, number);
 
 	draw_status_line(buffer, cols);
 
@@ -123,7 +140,7 @@ scroll_up(Buffer *buffer, int rows, int cols)
 	/* save cursor position, go to at the bottom, scroll one line up */
 	fputs("\033[s\033[0;0H\033M", stderr);
 
-	draw_line(buffer->top, cols);
+	draw_line(buffer->top, cols, --buffer->top_l);
 
 	/* go to the bottom */
 	fprintf(stderr, "\033[%d;0H", rows);
@@ -149,12 +166,12 @@ scroll_down(Buffer *buffer, int rows, int cols)
 		return;
 
 	buffer->top = buffer->top->next;
+	buffer->top_l++;
 
 	/* save cursor position, go to the bottom */
 	fprintf(stderr, "\033[s\033[%d;0H", rows);
 
-
-	draw_line(line, cols);
+	draw_line(line, cols, buffer->top_l + rows - 2);
 	draw_status_line(buffer, cols);
 
 	fputs("\033[u", stderr);
