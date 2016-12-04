@@ -4,19 +4,19 @@ OBJ       = ${SRC:.c=.o}
 
 MANPREFIX = $(PREFIX)
 
-all: clean pager
+all: clean triode
 
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-pager: ${OBJ}
+triode: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
 	rm -f *.o
 
 clean:
-	rm -f pager ${OBJ}
+	rm -f triode ${OBJ}
 
-install: pager
+install: triode
 	mkdir -p  $(PREFIX)/bin $(MANPREFIX)/man/man1
 	cp *.1 $(MANPREFIX)/man/man1/
-	cp pager $(PREFIX)/bin/
+	cp triode $(PREFIX)/bin/
