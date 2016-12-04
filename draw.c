@@ -133,7 +133,7 @@ draw_screen(Buffer *buffer, int rows, int cols)
 void
 scroll_up(Buffer *buffer, int rows, int cols)
 {
-	if (!buffer->top->prev)
+	if (!buffer->top || !buffer->top->prev)
 		return;
 
 	buffer->top = buffer->top->prev;
@@ -163,7 +163,7 @@ scroll_down(Buffer *buffer, int rows, int cols)
 
 	for (i = 0; i < rows - 1 && line; i++, line = line->next);
 
-	if (!buffer->top->next || !line)
+	if (!buffer->top || !buffer->top->next || !line)
 		return;
 
 	buffer->top = buffer->top->next;

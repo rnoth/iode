@@ -1,40 +1,47 @@
-#define MAX_LINE_SIZE 2048
+#define MAX_LINE_SIZE           2048
+#define MAX_KEY_SEQUENCE_LENGTH 8
 
-#define CONTINUE 2
-
-/* thanks to martanne@brain-dump.org, this is pretty neat */
+/* thanks to martanne@brain-dump.org, this is neat */
+#define CONTROL(c)    (c ^ 0x40)
 #define ISCONTROL(c)  ((unsigned char) c <  0x1f)
 #define ISASCII(c)    ((unsigned char) c <  0x80)
 #define ISUTF8(c)     ((unsigned char) c >= 0x80)
-#define CONTROL(c)    (c ^ 0x40)
 #define MIN(X, Y)     (((X) < (Y)) ? (X) : (Y))
 #define MAX(X, Y)     (((X) > (Y)) ? (X) : (Y))
+
+
+enum { CONTINUE = 2, PAGER_MODE, NORMAL_MODE, INSERT_MODE, REPLACE_MODE };
 
 
 /*
  * Doubly linked list of lines.
  */
 typedef struct Line {
-	char *text;  /* content of the line */
+	char *text;         /* content of the line */
 
-	struct Line *next;  /* doubly linked list structure */
-	struct Line *prev;
+	struct Line *prev, *next;
 } Line;
 
 
 typedef struct Buffer {
-	int total;  /* total number of lines */
+	int total;           /* total number of lines */
+	int top_l;           /* number of top line displayed on the screen */
+	int l, c;            /* cursor position in line and columns */
 
-	Line *first;
-	Line *last;
-	Line *current;  /* for walking the doubly linked list faster */
-	Line *top;      /* line at the top of the screen */
-
-	int top_l;      /* number of top line displayed on the screen */
-	int l, c;       /* cursor position in line and columns through file */
+	Line *first, *last;
+	Line *current;
+	Line *top;           /* line at the top of the screen */
 
 	char operators[MAX_LINE_SIZE];
 } Buffer;
+
+
+typedef struct Arg {
+	Buffer *b;
+	
+	int m;     /* count before commands */
+	int r, c;  /* rows columns */
+} Arg;
 
 
 /* main */
@@ -63,5 +70,21 @@ void     scroll_down(Buffer *, int, int);
 
 
 /* input */
+
 int      input_key(FILE *, int, Buffer *);
 int      input_get(FILE *, int, Buffer *);
+
+
+/* actions */
+
+void     a_quit(Arg *);
+void     a_redraw(Arg *);
+void     a_jump_begin(Arg *);
+void     a_jump_end(Arg *);
+void     a_half_page_up(Arg *);
+void     a_half_page_down(Arg *);
+void     a_page_up(Arg *);
+void     a_page_down(Arg *);
+void     a_scroll_up(Arg *);
+void     a_scroll_down(Arg *);
+void     a_increment_multiplier(Arg *);

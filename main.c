@@ -7,6 +7,12 @@
 #include "main.h"
 
 
+usage(void)
+{
+	fputs("Usage: triode < file\n", stderr);
+}
+
+
 /*
  * Set terminal to send one char at a time for interactive mode, and return the
  * last terminal state.
@@ -43,14 +49,25 @@ die(const char *message)
 
 
 int
-main(int argc, char *arcgv[])
+main(int argc, char *argv[])
 {
-	int             exit_code;
+	int             exit_code, i;
 	int             tty_fd     = open("/dev/tty", O_RDWR);
 	FILE           *tty_fp     = fopen("/dev/tty", "r");
 	Buffer         *buffer     = buffer_read(stdin);
 	struct termios  termio_old = set_terminal(tty_fd);
 	struct winsize  w;
+
+	/* command line arguments */
+	for (i = 1; i < argc; i++) {
+		if (argv[i][0] != '-' || strlen(argv[i]) != 2)
+			usage();
+
+		switch (argv[i][1]) {
+		case 'h':
+			usage();
+		}
+	}
 
 	if (ioctl(tty_fd, TIOCGWINSZ, &w) > 0)
 		die("ioctl");
@@ -69,3 +86,5 @@ main(int argc, char *arcgv[])
 
 	return exit_code;
 }
+
+
