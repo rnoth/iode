@@ -3,10 +3,12 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <sys/ioctl.h>
+#include <string.h>
 
 #include "main.h"
 
 
+void
 usage(void)
 {
 	fputs("Usage: triode < file\n", stderr);
@@ -75,7 +77,7 @@ main(int argc, char *argv[])
 	fputs("\033[13;0H\033[?16c", stderr);
 	draw_screen(buffer, w.ws_row, w.ws_col);
 
-	exit_code = input_get(tty_fp, tty_fd, buffer);
+	exit_code = input(tty_fp, tty_fd, buffer);
 
 	/* resets the terminal to the previous state. */
 	tcsetattr(tty_fd, TCSANOW, &termio_old);

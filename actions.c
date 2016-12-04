@@ -12,20 +12,23 @@
  */
 
 
-void
-a_quit(Arg *a)
+int
+a_quit()
 {
+	return EXIT_SUCCESS;
 }
 
 
-void
+int
 a_redraw(Arg *a)
 {
 	draw_screen(a->b, a->r, a->c);
+
+	return CONTINUE;
 }
 
 
-void
+int
 a_jump_begin(Arg *a)
 {
 	a->b->top   = a->b->first;
@@ -37,10 +40,12 @@ a_jump_begin(Arg *a)
 	}
 
 	draw_screen(a->b, a->r, a->c);
+
+	return CONTINUE;
 }
 
 
-void
+int
 a_jump_end(Arg *a)
 {
 	a->b->top   = a->b->last;
@@ -56,64 +61,78 @@ a_jump_end(Arg *a)
 	}
 
 	draw_screen(a->b, a->r, a->c);
+
+	return CONTINUE;
 }
 
 
-void
+int
 a_half_page_up(Arg *a)
 {
 	int i;
 
 	for (i = 0; i < (a->r - 1) / 2 * (a->m ? a->m : 1); i++)
 		scroll_up(a->b, a->r, a->c);
+
+	return CONTINUE;
 }
 
 
-void
+int
 a_half_page_down(Arg *a)
 {
 	int i;
 
 	for (i = 0; i < (a->r - 1) / 2 * (a->m ? a->m : 1); i++)
 		scroll_down(a->b, a->r, a->c);
+
+	return CONTINUE;
 }
 
 
-void
+int
 a_page_up(Arg *a)
 {
 	int i;
 
 	for (i = 0; i < (a->r - 2) * (a->m ? a->m : 1); i++)
 		scroll_up(a->b, a->r, a->c);
+
+	return CONTINUE;
 }
 
 
-void
+int
 a_page_down(Arg *a)
 {
 	int i;
 
 	for (i = 0; i < (a->r - 2) * (a->m ? a->m : 1); i++)
 		scroll_down(a->b, a->r, a->c);
+
+	return CONTINUE;
 }
 
 
-void
+int
 a_scroll_up(Arg *a)
 {
 	int i;
 
 	for (i = 0; i < (a->m ? a->m : 1); i++)
 		scroll_up(a->b, a->r, a->c);
+
+	return CONTINUE;
 }
 
 
-void
+int
 a_scroll_down(Arg *a)
 {
 	int i;
 
 	for (i = 0; i < (a->m ? a->m : 1); i++)
 		scroll_down(a->b, a->r, a->c);
+
+	return CONTINUE;
 }

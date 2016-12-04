@@ -71,20 +71,19 @@ void     scroll_down(Buffer *, int, int);
 
 /* input */
 
-int      input_key(FILE *, int, Buffer *);
-int      input_get(FILE *, int, Buffer *);
+int      input(FILE *, int, Buffer *);
 
 
 /* actions */
 
-void     a_quit(Arg *);
-void     a_redraw(Arg *);
-void     a_jump_begin(Arg *);
-void     a_jump_end(Arg *);
-void     a_half_page_up(Arg *);
-void     a_half_page_down(Arg *);
-void     a_page_up(Arg *);
-void     a_page_down(Arg *);
-void     a_scroll_up(Arg *);
-void     a_scroll_down(Arg *);
-void     a_increment_multiplier(Arg *);
+int      a_quit();
+int      a_redraw(Arg *);
+int      a_jump_begin(Arg *);
+int      a_jump_end(Arg *);
+int      a_half_page_up(Arg *);
+int      a_half_page_down(Arg *);
+int      a_page_up(Arg *);
+int      a_page_down(Arg *);
+int      a_scroll_up(Arg *);
+int      a_scroll_down(Arg *);
+int      a_increment_multiplier(Arg *);

@@ -15,9 +15,21 @@ int
 input(FILE *tty_fp, int tty_fd, Buffer *buffer)
 {
 	int             exit_code = CONTINUE;
-	char            key;
+	char            k;
 	struct winsize  w;
 	Arg            *a         = malloc(sizeof(Arg));
+
+	k_pager[CONTROL('L')] = a_redraw;
+	k_pager[CONTROL('c')] = a_quit;
+	k_pager['q']          = a_quit;
+	k_pager['g']          = a_jump_begin;
+	k_pager['G']          = a_jump_end;
+	k_pager['u']          = a_half_page_up;
+	k_pager['d']          = a_half_page_down;
+	k_pager['f']          = a_page_up;
+	k_pager['b']          = a_page_down;
+	k_pager['k']          = a_scroll_up;
+	k_pager['j']          = a_scroll_down;
 
 	/* main execution loop: get input char by char from the keyboard */
 	while (exit_code != EXIT_FAILURE && exit_code != EXIT_SUCCESS) {
@@ -27,18 +39,19 @@ input(FILE *tty_fp, int tty_fd, Buffer *buffer)
 
 		a->c = w.ws_col;
 		a->r = w.ws_row;
+		a->b = buffer;
 
-		key = fgetc(tty_fp);
+		k = fgetc(tty_fp);
 
 		/* multipliers for commands */
-		while (key >= '0' && key <= '9' && a->m < 1000) {
-			a->m = a->m * 10 + (key - '0');
+		while (k >= '0' && k <= '9' && a->m < 1000) {
+			a->m = a->m * 10 + (k - '0');
 			sprintf(a->b->operators, "%d", a->m ? a->m : 0);
 			update_status_line(a->b, a->r, a->c);
-			fgetc(tty_fd);
+			fgetc(tty_fp);
 		}
 
-		exit_code = k_pager[key] ? k_pager[key]() : CONTINUE;
+		exit_code = k_pager[(int) k] ? k_pager[(int) k](a) : CONTINUE;
 	}
 
 	free(a);

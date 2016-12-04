@@ -1,4 +1,4 @@
-void (*k_pager[128])(Arg *);
+int (*k_pager[128])(Arg *);
 
 
 /* keybindings for PAGER_MODE */
