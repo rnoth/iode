@@ -4,7 +4,7 @@ int (*k_pager[128])(Arg *);
 /* keybindings for PAGER_MODE */
 
 void
-keybindings() {
+keybindings(void) {
 	k_pager[CONTROL('L')] = a_redraw;
 	k_pager[CONTROL('c')] = a_quit;
 	k_pager['q']          = a_quit;

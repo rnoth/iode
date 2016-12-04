@@ -19,17 +19,7 @@ input(FILE *tty_fp, int tty_fd, Buffer *buffer)
 	struct winsize  w;
 	Arg            *a         = malloc(sizeof(Arg));
 
-	k_pager[CONTROL('L')] = a_redraw;
-	k_pager[CONTROL('c')] = a_quit;
-	k_pager['q']          = a_quit;
-	k_pager['g']          = a_jump_begin;
-	k_pager['G']          = a_jump_end;
-	k_pager['u']          = a_half_page_up;
-	k_pager['d']          = a_half_page_down;
-	k_pager['f']          = a_page_up;
-	k_pager['b']          = a_page_down;
-	k_pager['k']          = a_scroll_up;
-	k_pager['j']          = a_scroll_down;
+	keybindings();
 
 	/* main execution loop: get input char by char from the keyboard */
 	while (exit_code != EXIT_FAILURE && exit_code != EXIT_SUCCESS) {
