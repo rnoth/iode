@@ -92,7 +92,7 @@ main(int argc, char *argv[])
 	if (ioctl(tty_fd, TIOCGWINSZ, &w) > 0)
 		die("ioctl");
 
-	fputs("\033[13;0H\033[?16c", stderr);
+	fprintf(stderr, "\033[%d;0H\033[?16c", w.ws_row);
 	draw_screen(buffer, w.ws_row, w.ws_col);
 
 	code = input(tty_fp, tty_fd, buffer);
