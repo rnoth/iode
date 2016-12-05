@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include "main.h"
@@ -133,6 +134,21 @@ a_scroll_down(Arg *a)
 
 	for (i = 0; i < (a->m ? a->m : 1); i++)
 		scroll_down(a->b, a->r, a->c);
+
+	return CONTINUE;
+}
+
+
+int
+a_editor(Arg *a)
+{
+	char *editor = getenv("EDITOR");
+	char command[MAX_LINE_SIZE];
+
+	sprintf(command, "%s %s", editor, a->b->filename);
+
+	if (system(command))
+		return EXIT_FAILURE;
 
 	return CONTINUE;
 }

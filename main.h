@@ -33,7 +33,8 @@ typedef struct Buffer {
 	Line *current;
 	Line *top;           /* line at the top of the screen */
 
-	char operators[MAX_LINE_SIZE];
+	char  operators[MAX_LINE_SIZE];
+	char *filename;
 } Buffer;
 
 
@@ -89,3 +90,4 @@ int      a_page_down(Arg *);
 int      a_scroll_up(Arg *);
 int      a_scroll_down(Arg *);
 int      a_increment_multiplier(Arg *);
+int      a_editor(Arg *);

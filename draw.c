@@ -120,6 +120,9 @@ draw_screen(Buffer *buffer, int rows, int cols)
 	for (; line && rows > 1; line = line->next, rows--, number++)
 		draw_line(line, cols, number);
 
+	for (; rows > 1; rows--)
+		fputs("      \033[1;30m.\033[0m\n", stderr);
+
 	draw_status_line(buffer, cols);
 
 	fputs("\033[u", stderr);

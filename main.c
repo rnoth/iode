@@ -87,12 +87,13 @@ main(int argc, char *argv[])
 	}
 
 	buffer = buffer_read(file);
+	buffer->filename = filename;
 
 	termio = set_terminal(tty_fd);
 	if (ioctl(tty_fd, TIOCGWINSZ, &w) > 0)
 		die("ioctl");
 
-	fprintf(stderr, "\033[%d;0H\033[?16c", w.ws_row);
+	fprintf(stderr, "\033[2J\033[%d;0H\033[?16c", w.ws_row);
 	draw_screen(buffer, w.ws_row, w.ws_col);
 
 	code = input(tty_fp, tty_fd, buffer);

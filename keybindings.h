@@ -16,4 +16,5 @@ keybindings(void) {
 	k_pager['b']          = a_page_down;
 	k_pager['k']          = a_scroll_up;
 	k_pager['j']          = a_scroll_down;
+	k_pager['v']          = a_editor;
 }
