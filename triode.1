@@ -1,0 +1,47 @@
+.Dd $Mdocdate: October 16 2016 $
+.Dt TRIODE 1
+.Os
+.Sh NAME
+.Nm triode
+.Op Fl
+.Op Ar file
+.
+.
+.Sh DESCRIPTION
+.
+.Nm
+is a simple pager with not a lot of features.
+
+.Pp
+.Bl -tag
+.It Fl
+Open stdin rather than a file.
+.
+.It file
+File to open.
+.El
+.
+.
+.Sh KEYBINDINGS
+.
+.Bl -tag
+.It Cm k / j
+Scroll one line up / down.
+.
+.It Cm u / d
+Scroll half a page up / down.
+.
+.It Cm f / b
+Scroll a page up / down.
+.
+.It Cm [0-9]
+Multiplier for scrolling up and down.
+.
+.It Cm g
+Jump to the beginning of the file.  If a multiplier is set, scroll the given
+line number.
+.
+.It Cm G
+Jump to the end of the file.  If a multiplier is set, scroll the given line
+number from the end.
+.El
