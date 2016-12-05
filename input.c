@@ -7,6 +7,28 @@
 
 
 /*
+ * Apply a modifier to the argument, to pass to commands.
+ */
+char
+input_multiplier(Arg *a, char k, FILE *tty_fp)
+{
+	a->m = 0;
+
+	while (k >= '0' && k <= '9' && a->m < 1000) {
+		a->m = a->m * 10 + (k - '0');
+		sprintf(a->b->operators, "%d", a->m);
+		update_status_line(a->b, a->r, a->c);
+		k = fgetc(tty_fp);
+	}
+
+	a->b->operators[0] = '\0';
+	update_status_line(a->b, a->r, a->c);
+
+	return k;
+}
+
+
+/*
  * Listen for the user input and call the appropriate functions.
  *
  * Main execution loop.
@@ -32,14 +54,9 @@ input(FILE *tty_fp, int tty_fd, Buffer *buffer)
 		a->c = w.ws_col;
 		a->r = w.ws_row;
 		a->b = buffer;
+		a->m = 0;
 
-		/* multipliers for commands */
-		while (k >= '0' && k <= '9' && a->m < 1000) {
-			a->m = a->m * 10 + (k - '0');
-			sprintf(a->b->operators, "%d", a->m ? a->m : 0);
-			update_status_line(a->b, a->r, a->c);
-			k = fgetc(tty_fp);
-		}
+		k = input_multiplier(a, k, tty_fp);
 
 		exit_code = k_pager[(int) k] ? k_pager[(int) k](a) : CONTINUE;
 	}

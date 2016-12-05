@@ -72,6 +72,7 @@ void     scroll_down(Buffer *, int, int);
 
 /* input */
 
+char     input_modifier(Arg *, char, FILE *);
 int      input(FILE *, int, Buffer *);
 
 
