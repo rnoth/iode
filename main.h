@@ -1,3 +1,4 @@
+#define PROGRAM_NAME "triode"
 #define MAX_LINE_SIZE           2048
 #define MAX_KEY_SEQUENCE_LENGTH 8
 
