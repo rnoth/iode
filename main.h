@@ -48,7 +48,8 @@ typedef struct Arg {
 
 /* main */
 
-void     die(const char *);
+void           die(const char *);
+struct termios set_terminal(int);
 
 
 /* buffer */

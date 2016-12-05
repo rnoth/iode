@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 	int             code, i;
 	int             tty_fd   = open("/dev/tty", O_RDWR);
 	FILE           *tty_fp   = fopen("/dev/tty", "r");
-	FILE           *file     = NULL;
+	FILE           *file     = stdin;
 	char           *filename = NULL;
 	Buffer         *buffer   = NULL;
 	struct termios  termio;
@@ -62,15 +62,12 @@ main(int argc, char *argv[])
 
 		if (argv[i][0] == '-') {
 			switch (argv[i][1]) {
-			case '\0':
-				file = stdin;
-				break;
 			default:
 				usage();
 				break;
 			}
 
-		} else if (filename || file) {
+		} else if (filename) {
 			fputs(PROGRAM_NAME": can only open one file\n", stderr);
 			exit(EXIT_FAILURE);
 		} else {
@@ -78,13 +75,8 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (!filename && !file) {
-		fputs(PROGRAM_NAME": no file to read\n", stderr);
-		exit(EXIT_FAILURE);
-
-	} else if (!file && !(file = fopen(filename, "r"))) {
+	if (filename && !(file = fopen(filename, "r")))
 		die("fopen");
-	}
 
 	buffer = buffer_read(file);
 	buffer->filename = filename;

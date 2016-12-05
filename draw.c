@@ -28,11 +28,11 @@ draw_char(char **character, char **text, int col)
 			width = 8 - (col % 8);
 
 		} else if (ISCONTROL(t[0])) {
-			sprintf(c, "\033[1;30m^%c\033[0m", t[0] + '@');
+			sprintf(c, "\033[1;30m^%c\033[m", t[0] + '@');
 			width = 2;
 
 		} else {
-			sprintf(c, "\033[1;30m??\033[0m");
+			sprintf(c, "\033[1;30m??\033[m");
 			width = 2;
 		}
 
@@ -58,11 +58,11 @@ draw_line(Line *line, int cols, int number)
 {
 	int col = 0;
 	/*                4 max size for UTF-8
-	 *               11 "\033[1;3%sm" and "\033[0m"
+	 *               11 "\033[1;3%sm" and "\033[m"
 	 *                1 null byte */
 	char *c = malloc(16 * sizeof(char)), *text = line->text;
 
-	fprintf(stderr, "\033[K\033[1;30m%7d\033[0m ", number);
+	fprintf(stderr, "\033[K\033[1;30m%7d\033[m ", number);
 	col += 8;
 
 	/* draw chars until the screen is filled or end of string */
@@ -74,7 +74,7 @@ draw_line(Line *line, int cols, int number)
 
 		/* not enough space to fit next char onscreen */
 		if (cols - col < 2 && text[0] && text[1]) {
-			fputs("\033[1;31m>\033[0m", stderr);
+			fputs("\033[1;31m>\033[m", stderr);
 			break;
 		}
 	}
@@ -88,7 +88,7 @@ draw_line(Line *line, int cols, int number)
 void
 draw_status_line(Buffer *buffer, int cols)
 {
-	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d\033[0m",
+	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d\033[m",
 		cols - 20 - (int) strlen(buffer->operators),
 		buffer->operators, buffer->total);
 }
@@ -121,7 +121,7 @@ draw_screen(Buffer *buffer, int rows, int cols)
 		draw_line(line, cols, number);
 
 	for (; rows > 1; rows--)
-		fputs("      \033[1;30m.\033[0m\n", stderr);
+		fputs("      \033[1;30m.\033[m\n", stderr);
 
 	draw_status_line(buffer, cols);
 
