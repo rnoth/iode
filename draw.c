@@ -110,6 +110,16 @@ draw_line(Line *line, int cols, int number)
 }
 
 
+/*
+ * Print an line representing the end of the buffer.
+ */
+void
+draw_empty_line(void)
+{
+	fputs("      \033[1;30m.\033[m\033[K\n", stderr);
+}
+
+
 void
 draw_status_line(Buffer *buffer, int cols)
 {
@@ -146,7 +156,7 @@ draw_screen(Buffer *buffer, int rows, int cols)
 		draw_line(line, cols, number);
 
 	for (; rows > 1; rows--)
-		fputs("      \033[1;30m.\033[m\033[K\n", stderr);
+		draw_empty_line();
 
 	draw_status_line(buffer, cols);
 
@@ -191,7 +201,7 @@ scroll_down(Buffer *buffer, int rows, int cols)
 
 	for (i = 0; i < rows - 1 && line; i++, line = line->next);
 
-	if (!buffer->top || !buffer->top->next || !line)
+	if (!buffer->top || !buffer->top->next)
 		return;
 
 	buffer->top = buffer->top->next;
@@ -200,7 +210,12 @@ scroll_down(Buffer *buffer, int rows, int cols)
 	/* save cursor position, go to the bottom */
 	fprintf(stderr, "\033[s\033[%d;0H", rows);
 
-	draw_line(line, cols, buffer->top_l + rows - 2);
+	if (line) {
+		draw_line(line, cols, buffer->top_l + rows - 2);
+	} else {
+		draw_empty_line();
+	}
+
 	draw_status_line(buffer, cols);
 
 	fputs("\033[u", stderr);

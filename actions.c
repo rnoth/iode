@@ -145,6 +145,7 @@ a_editor(Arg *a)
 	char *editor = getenv("EDITOR"), command[MAX_LINE_SIZE];
 	char *filename = a->b->filename;
 	FILE *file     = a->b->file;
+	int   top_l    = a->b->top_l;
 
 	if (!filename)
 		return CONTINUE;
@@ -159,7 +160,8 @@ a_editor(Arg *a)
 	/* read the file again to keep up with the changes */
 	buffer_free(a->b);
 	fclose(file);
-	a->b = buffer_read(filename);
+	a->b        = buffer_read(filename);
+	a->b->top_l = top_l;
 
 	draw_screen(a->b, a->r, a->c);
 

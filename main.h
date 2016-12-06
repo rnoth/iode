@@ -66,6 +66,7 @@ void     buffer_print(Buffer *);
 
 int      draw_char(char **, char **, int, int);
 void     draw_line(Line *, int, int);
+void     draw_empty_line(void);
 void     draw_status_line(Buffer *, int);
 void     update_status_line(Buffer *, int, int);
 void     draw_screen(Buffer *, int, int);
