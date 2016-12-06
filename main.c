@@ -48,7 +48,7 @@ die(const char *message)
 int
 main(int argc, char *argv[])
 {
-	int             code, i;
+	int             code, i, j, top;
 	int             tty_fd   = open("/dev/tty", O_RDWR);
 	FILE           *tty_fp   = fopen("/dev/tty", "r");
 	FILE           *file     = stdin;
@@ -62,14 +62,22 @@ main(int argc, char *argv[])
 
 		if (argv[i][0] == '-') {
 			switch (argv[i][1]) {
+
+			case 'R':
+				break;
+
 			default:
 				usage();
 				break;
 			}
 
-		} else if (filename) {
-			fputs(PROGRAM_NAME": can only open one file\n", stderr);
-			exit(EXIT_FAILURE);
+		} else if (argv[i][0] == '+') {
+			for (top = 0, j = 1; argv[i][j]; j++) {
+				if (argv[i][j] < '0' || argv[i][j] > '9')
+					usage();
+				top = 10 * top + argv[i][j] - '0';
+			}
+
 		} else {
 			filename = argv[i];
 		}
@@ -87,6 +95,10 @@ main(int argc, char *argv[])
 
 	fprintf(stderr, "\033[2J\033[%d;0H\033[?16c", w.ws_row);
 	draw_screen(buffer, w.ws_row, w.ws_col);
+
+	/* jump to initial position */
+	for (; top > 1; top--)
+		scroll_down(buffer, w.ws_row, w.ws_col);
 
 	code = input(tty_fp, tty_fd, buffer);
 

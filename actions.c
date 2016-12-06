@@ -143,7 +143,8 @@ int
 a_editor(Arg *a)
 {
 	char *editor = getenv("EDITOR");
-	char command[MAX_LINE_SIZE];
+	char  command[MAX_LINE_SIZE];
+	FILE *file   = a->b->file;
 
 	sprintf(command, "%s %s +%d", editor, a->b->filename, a->b->top_l);
 
@@ -151,6 +152,10 @@ a_editor(Arg *a)
 
 	if (system(command))
 		return EXIT_FAILURE;
+
+	buffer_free(a->b);
+
+	a->b = buffer_read();
 
 	draw_screen(a->b, a->r, a->c);
 
