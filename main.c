@@ -48,7 +48,7 @@ die(const char *message)
 int
 main(int argc, char *argv[])
 {
-	int             code, i, j, top;
+	int             code, i, j, top = 0;
 	int             tty_fd   = open("/dev/tty", O_RDWR);
 	FILE           *tty_fp   = fopen("/dev/tty", "r");
 	char           *filename = NULL;

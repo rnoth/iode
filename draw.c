@@ -1,3 +1,9 @@
+/*
+ * In this code, "char" refers to the eight bits that compose a char, and
+ * "character" is the single or multiple character considered as one character.
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -7,13 +13,10 @@
 
 
 /*
- * Set `c` content to a representation of the first char of `text`, then it
+ * Set `c` content to a representation of the first character of `text`, then it
  * shifts `text` pointer to next char.
  *
  * Return: onscreen width of the char while printed.
- *
- * In comments, "char" refers to the eight bits that compose a char, and
- * "character" is the single or multiple character considered as one character.
  */
 int
 draw_char(char **character, char **text, int col, int vis)
@@ -93,7 +96,6 @@ draw_line(Line *line, int cols, int number)
 	/* draw chars until the screen is filled or end of string */
 	for (; text[0] && cols - col > 0;) {
 		col += draw_char(&c, &text, col, 0);
-		/* now `c` is set and `text` points to the next char */
 
 		fputs(c, stderr);
 
@@ -123,9 +125,9 @@ draw_empty_line(void)
 void
 draw_status_line(Buffer *buffer, int cols)
 {
-	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d\033[m",
+	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d - %s\033[m",
 		cols - 20 - (int) strlen(buffer->operators),
-		buffer->operators, buffer->total);
+		buffer->operators, buffer->total, buffer->filename);
 }
 
 
