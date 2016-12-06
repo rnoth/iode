@@ -11,47 +11,61 @@
  * shifts `text` pointer to next char.
  *
  * Return: onscreen width of the char while printed.
+ *
+ * In comments, "char" refers to the eight bits that compose a char, and
+ * "character" is the single or multiple character considered as one character.
  */
 int
 draw_char(char **character, char **text, int col, int vis)
 {
-	int i = 0, width = 0;
+	int i     = 0;  /* how many chars did we read to render one character */
+	int width = 0;  /* how much screen width is this character taking */
 	char *c = *character, *t = *text;
 
 	if (ISASCII(t[0])) {
+
 		if (isprint(t[0])) {
 			c[0] = t[0]; c[1] = '\0';
 			width = 1;
+			i = 1;
+
+		/* mandoc adds '^H' between some characters */
+		} else if ((!vis && t[0] == CONTROL('H'))) {
+			c[0] = t[0]; c[1] = '\0';
+			width = -1;
+			i = 1;
 
 		/* tab */
 		} else if (t[0] == '\t') {
 			c[0] = '\t'; c[1] = '\0';
 			width = 8 - (col % 8);
+			i = 1;
 
 		/* escape codes */
-		} else if (vis && (t[0] == '\033')) {
+		} else if (!vis && (t[0] == '\033')) {
 			for (i = 0; t[i] && !isalpha(t[i]); i++)
 				c[i] = t[i];
-			c[i + 1] = '\0';
-			width = 0;
+			c[i] = '\0';
+			/* next char is the alpha that ends escape code */
+			width = -1;
 
 		/* control characters */
 		} else if (ISCONTROL(t[0])) {
 			sprintf(c, "\033[1;30m^%c\033[m", t[0] + '@');
 			width = 2;
+			i = 1;
 
 		/* unknown */
 		} else {
 			sprintf(c, "\033[1;30m?\033[m");
 			width = 1;
+			i = 1;
 		}
-
-		i++;
 
 	} else {
 		for (i = 0; t[i] && ISUTF8(t[i]); i++)
 			c[i] = t[i];
-		c[i + 1] = '\0';
+		c[i] = '\0';
 		width = 1;
 	}
 
@@ -78,7 +92,7 @@ draw_line(Line *line, int cols, int number)
 
 	/* draw chars until the screen is filled or end of string */
 	for (; text[0] && cols - col > 0;) {
-		col += draw_char(&c, &text, col, 1);
+		col += draw_char(&c, &text, col, 0);
 		/* now `c` is set and `text` points to the next char */
 
 		fputs(c, stderr);
