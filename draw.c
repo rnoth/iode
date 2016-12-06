@@ -13,9 +13,9 @@
  * Return: onscreen width of the char while printed.
  */
 int
-draw_char(char **character, char **text, int col)
+draw_char(char **character, char **text, int col, int vis)
 {
-	int i = 0, width = 0;  /* onscreen width of the char to print */
+	int i = 0, width = 0;
 	char *c = *character, *t = *text;
 
 	if (ISASCII(t[0])) {
@@ -23,20 +23,31 @@ draw_char(char **character, char **text, int col)
 			c[0] = t[0]; c[1] = '\0';
 			width = 1;
 
+		/* tab */
 		} else if (t[0] == '\t') {
 			c[0] = '\t'; c[1] = '\0';
 			width = 8 - (col % 8);
 
+		/* escape codes */
+		} else if (vis && (t[0] == '\033')) {
+			for (i = 0; t[i] && !isalpha(t[i]); i++)
+				c[i] = t[i];
+			c[i + 1] = '\0';
+			width = 0;
+
+		/* control characters */
 		} else if (ISCONTROL(t[0])) {
 			sprintf(c, "\033[1;30m^%c\033[m", t[0] + '@');
 			width = 2;
 
+		/* unknown */
 		} else {
-			sprintf(c, "\033[1;30m??\033[m");
-			width = 2;
+			sprintf(c, "\033[1;30m?\033[m");
+			width = 1;
 		}
 
 		i++;
+
 	} else {
 		for (i = 0; t[i] && ISUTF8(t[i]); i++)
 			c[i] = t[i];
@@ -67,7 +78,7 @@ draw_line(Line *line, int cols, int number)
 
 	/* draw chars until the screen is filled or end of string */
 	for (; text[0] && cols - col > 0;) {
-		col += draw_char(&c, &text, col);
+		col += draw_char(&c, &text, col, 1);
 		/* now `c` is set and `text` points to the next char */
 
 		fputs(c, stderr);

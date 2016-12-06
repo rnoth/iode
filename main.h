@@ -63,7 +63,7 @@ void     buffer_print(Buffer *);
 
 /* draw */
 
-int      draw_char(char **, char **, int);
+int      draw_char(char **, char **, int, int);
 void     draw_line(Line *, int, int);
 void     draw_status_line(Buffer *, int);
 void     update_status_line(Buffer *, int, int);
