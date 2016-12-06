@@ -51,7 +51,6 @@ main(int argc, char *argv[])
 	int             code, i, j, top;
 	int             tty_fd   = open("/dev/tty", O_RDWR);
 	FILE           *tty_fp   = fopen("/dev/tty", "r");
-	FILE           *file     = stdin;
 	char           *filename = NULL;
 	Buffer         *buffer   = NULL;
 	struct termios  termio;
@@ -64,6 +63,7 @@ main(int argc, char *argv[])
 			switch (argv[i][1]) {
 
 			case 'R':
+
 				break;
 
 			default:
@@ -83,11 +83,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (filename && !(file = fopen(filename, "r")))
-		die("fopen");
-
-	buffer = buffer_read(file);
-	buffer->filename = filename;
+	buffer = buffer_read(filename);
 
 	termio = set_terminal(tty_fd);
 	if (ioctl(tty_fd, TIOCGWINSZ, &w) > 0)
@@ -105,7 +101,7 @@ main(int argc, char *argv[])
 	/* resets the terminal to the previous state. */
 	tcsetattr(tty_fd, TCSANOW, &termio);
 	fclose(tty_fp);
-	fclose(file);
+	fclose(buffer->file);
 	fprintf(stderr, "\033[%d;0H\033[?6c", w.ws_row);
 
 	buffer_free(buffer);

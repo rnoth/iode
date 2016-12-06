@@ -43,18 +43,18 @@ input(FILE *tty_fp, int tty_fd, Buffer *buffer)
 
 	keybindings();
 
+	a->b = buffer;
+
 	/* main execution loop: get input char by char from the keyboard */
 	while (exit_code != EXIT_FAILURE && exit_code != EXIT_SUCCESS) {
 
 		k = fgetc(tty_fp);
 
+		/* get terminal dimensions */
 		if (ioctl(tty_fd, TIOCGWINSZ, &w) > 0)
 			die("ioctl");
-
 		a->c = w.ws_col;
 		a->r = w.ws_row;
-		a->b = buffer;
-		a->m = 0;
 
 		k = input_multiplier(a, k, tty_fp);
 

@@ -146,7 +146,7 @@ draw_screen(Buffer *buffer, int rows, int cols)
 		draw_line(line, cols, number);
 
 	for (; rows > 1; rows--)
-		fputs("      \033[1;30m.\033[m\n", stderr);
+		fputs("      \033[1;30m.\033[m\033[K\n", stderr);
 
 	draw_status_line(buffer, cols);
 

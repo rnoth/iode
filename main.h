@@ -55,7 +55,7 @@ struct termios set_terminal(int);
 
 /* buffer */
 
-Buffer * buffer_read(FILE *);
+Buffer * buffer_read(char *filename);
 Line   * line_new(char *s);
 void     line_add_end(Buffer *, Line *line);
 void     buffer_free(Buffer *);

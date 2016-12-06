@@ -6,10 +6,10 @@
 
 
 /*
- * read the file in a doubly linked list of lines.
+ * Read the file in a doubly linked list of lines.
  */
 Buffer *
-buffer_read(FILE *fp)
+buffer_read(char* filename)
 {
 	/* fill buffer with string */
 	Buffer *buffer = malloc(sizeof(Buffer));
@@ -20,8 +20,17 @@ buffer_read(FILE *fp)
 	buffer->total = buffer->l = buffer->c = 0;
 	buffer->top_l = 1;
 	buffer->operators[0] = '\0';
+	buffer->filename = filename;
+	buffer->file  = NULL;
 
-	while (fgets(s, MAX_LINE_SIZE, fp))
+	/* open file or stdin */
+	if (!filename) {
+		buffer->file = stdin;
+	} else if (filename && !(buffer->file = fopen(filename, "r"))) {
+		die("fopen");
+	}
+
+	while (fgets(s, MAX_LINE_SIZE, buffer->file))
 		line_add_end(buffer, line_new(s));
 
 	buffer->top = buffer->current = buffer->first;

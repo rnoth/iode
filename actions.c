@@ -142,20 +142,24 @@ a_scroll_down(Arg *a)
 int
 a_editor(Arg *a)
 {
-	char *editor = getenv("EDITOR");
-	char  command[MAX_LINE_SIZE];
-	FILE *file   = a->b->file;
+	char *editor = getenv("EDITOR"), command[MAX_LINE_SIZE];
+	char *filename = a->b->filename;
+	FILE *file     = a->b->file;
 
-	sprintf(command, "%s %s +%d", editor, a->b->filename, a->b->top_l);
+	if (!filename)
+		return CONTINUE;
 
-	fputs("\033[?12c", stderr);
-
+	/* open filename with "$EDITOR" at line a->b->top_l */
+	fputs("\033[?6c", stderr);
+	sprintf(command, "%s +%d %s", editor, a->b->top_l, filename);
 	if (system(command))
 		return EXIT_FAILURE;
+	fputs("\033[?12c", stderr);
 
+	/* read the file again to keep up with the changes */
 	buffer_free(a->b);
-
-	a->b = buffer_read();
+	fclose(file);
+	a->b = buffer_read(filename);
 
 	draw_screen(a->b, a->r, a->c);
 
