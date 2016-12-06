@@ -36,32 +36,40 @@ input_multiplier(Arg *a, char k, FILE *tty_fp)
 int
 input(FILE *tty_fp, int tty_fd, Buffer *buffer)
 {
-	int             exit_code = CONTINUE;
-	char            k;
-	struct winsize  w;
-	Arg            *a         = malloc(sizeof(Arg));
+	int mode = CONTINUE;
+	char k;
+	struct winsize w;
+	Arg *a = malloc(sizeof(Arg));
 
 	keybindings();
 
 	a->b = buffer;
 
 	/* main execution loop: get input char by char from the keyboard */
-	while (exit_code != EXIT_FAILURE && exit_code != EXIT_SUCCESS) {
+	while (buffer->mode != EXIT_FAILURE && buffer->mode != EXIT_SUCCESS) {
 
 		k = fgetc(tty_fp);
 
-		/* get terminal dimensions */
 		if (ioctl(tty_fd, TIOCGWINSZ, &w) > 0)
 			die("ioctl");
 		a->c = w.ws_col;
 		a->r = w.ws_row;
 
-		k = input_multiplier(a, k, tty_fp);
+		/* execute action associated with key */
 
-		exit_code = k_pager[(int) k] ? k_pager[(int) k](a) : CONTINUE;
+		if (buffer->mode == PAGER)
+			k = input_multiplier(a, k, tty_fp);
+
+		if (buffer->mode == PAGER && k_pager[(int) k])
+			mode = k_pager[(int) k](a);
+
+		/* rules to switch modes and submodes */
+		mode = ((mode == CONTINUE) ? buffer->mode : mode);
+
+		buffer->mode = mode;
 	}
 
 	free(a);
 
-	return exit_code;
+	return buffer->mode;
 }

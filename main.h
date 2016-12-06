@@ -11,7 +11,7 @@
 #define MAX(X, Y)     (((X) > (Y)) ? (X) : (Y))
 
 
-enum { CONTINUE = 2, PAGER_MODE, NORMAL_MODE, INSERT_MODE, REPLACE_MODE };
+enum { CONTINUE = 2, PAGER, EDIT, SEARCH, INSERT, REPLACE };
 
 
 /*
@@ -28,6 +28,7 @@ typedef struct Buffer {
 	int total;           /* total number of lines */
 	int top_l;           /* number of top line displayed on the screen */
 	int l, c;            /* cursor position in line and columns */
+	int mode;
 
 	Line *first, *last;
 	Line *current;

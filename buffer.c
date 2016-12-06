@@ -22,11 +22,12 @@ buffer_read(char* filename)
 	buffer->operators[0] = '\0';
 	buffer->filename = filename;
 	buffer->file  = NULL;
+	buffer->mode  = PAGER;
 
 	/* open file or stdin */
 	if (!filename) {
 		buffer->file = stdin;
-	} else if (filename && !(buffer->file = fopen(filename, "r"))) {
+	} else if (!(buffer->file = fopen(filename, "r"))) {
 		die("fopen");
 	}
 
