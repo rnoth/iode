@@ -3,7 +3,6 @@
 #include <sys/ioctl.h>
 
 #include "main.h"
-#include "keybindings.h"
 
 
 /*
@@ -40,8 +39,9 @@ input(FILE *tty_fp, int tty_fd, Buffer *buffer)
 	char k;
 	struct winsize w;
 	Arg *a = malloc(sizeof(Arg));
+	int (*keys[10][128])(Arg *);
 
-	keybindings();
+#include "keybindings.h"
 
 	a->b = buffer;
 
@@ -55,13 +55,12 @@ input(FILE *tty_fp, int tty_fd, Buffer *buffer)
 		a->c = w.ws_col;
 		a->r = w.ws_row;
 
-		/* execute action associated with key */
-
 		if (buffer->mode == PAGER)
 			k = input_multiplier(a, k, tty_fp);
 
-		if (buffer->mode == PAGER && k_pager[(int) k])
-			mode = k_pager[(int) k](a);
+		/* execute action associated with key */
+		if (keys[buffer->mode][(int) k])
+			mode = keys[buffer->mode][(int) k](a);
 
 		/* rules to switch modes and submodes */
 		mode = ((mode == CONTINUE) ? buffer->mode : mode);
