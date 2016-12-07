@@ -146,6 +146,7 @@ a_editor(Arg *a)
 	char *filename = a->b->filename;
 	FILE *file     = a->b->file;
 	int   top_l    = a->b->top_l;
+	Line *top      = a->b->top;
 
 	if (!filename)
 		return CONTINUE;
@@ -162,6 +163,7 @@ a_editor(Arg *a)
 	fclose(file);
 	a->b        = buffer_read(filename);
 	a->b->top_l = top_l;
+	a->b->top   = top;
 
 	draw_screen(a->b, a->r, a->c);
 
