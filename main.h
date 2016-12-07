@@ -35,6 +35,7 @@ typedef struct Buffer {
 	Line *top;           /* line at the top of the screen */
 
 	char  operators[MAX_LINE_SIZE];
+
 	char *filename;
 	FILE *file;
 } Buffer;

@@ -16,13 +16,13 @@ buffer_read(char* filename)
 	char    s[MAX_LINE_SIZE];
 
 	/* init empty buffer */
-	buffer->top = buffer->first = buffer->last = buffer->current = NULL;
+	buffer->top   = buffer->first = buffer->last = buffer->current = NULL;
 	buffer->total = buffer->l = buffer->c = 0;
-	buffer->top_l = 1;
+	buffer->top_l        = 1;
 	buffer->operators[0] = '\0';
-	buffer->filename = filename;
-	buffer->file  = NULL;
-	buffer->mode  = PAGER;
+	buffer->filename     = filename;
+	buffer->file         = NULL;
+	buffer->mode         = PAGER;
 
 	/* open file or stdin */
 	if (!filename) {
