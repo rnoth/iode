@@ -4,19 +4,19 @@ OBJ       = ${SRC:.c=.o}
 
 MANPREFIX = $(PREFIX)
 
-all: clean triode
+all: clean iode
 
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-triode: ${OBJ}
+iode: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
 	rm -f *.o
 
 clean:
-	rm -f triode ${OBJ}
+	rm -f iode ${OBJ}
 
-install: triode
+install: iode
 	mkdir -p  $(PREFIX)/bin $(MANPREFIX)/man/man1
 	cp *.1 $(MANPREFIX)/man/man1/
-	cp triode $(PREFIX)/bin/
+	cp iode $(PREFIX)/bin/

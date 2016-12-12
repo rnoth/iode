@@ -22,8 +22,10 @@ keys[PAGER]['d']          = a_half_page_down;
 keys[PAGER][CONTROL('D')] = a_half_page_down;
 
 keys[PAGER]['k']          = a_scroll_up;
+keys[PAGER][CONTROL('Y')] = a_scroll_up;
 
 keys[PAGER]['j']          = a_scroll_down;
 keys[PAGER][CONTROL('J')] = a_scroll_down;
+keys[PAGER][CONTROL('E')] = a_scroll_down;
 
 keys[PAGER]['v']          = a_editor;
