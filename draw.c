@@ -68,9 +68,8 @@ draw_char(char **character, char **text, int col, int vis)
 	} else {
 		for (i = 0; t[i] && ISUTF8(t[i]); i++)
 			c[i] = t[i];
-		c[i]   = t[i];
-		c[++i] = '\0';
-		width  = 1;
+		c[i] = '\0';
+		width = 0;
 	}
 
 	*character = c;
