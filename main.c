@@ -11,7 +11,7 @@
 void
 usage(void)
 {
-	fputs("Usage: triode [-] [file]\n", stderr);
+	fputs("Usage: iode [file]\n", stderr);
 	exit(EXIT_FAILURE);
 }
 
