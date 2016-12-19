@@ -8,6 +8,9 @@
 #include "main.h"
 
 
+int tty_fd = 0;
+
+
 void
 usage(void)
 {
@@ -20,10 +23,14 @@ usage(void)
  * Set terminal to send one char at a time for interactive mode, and return the
  * last terminal state.
  */
-struct termios
-set_terminal(int tty_fd)
+void
+set_terminal()
 {
-	struct termios termio_old, termio_new;
+	extern int tty_fd;
+	struct termios termio;
+
+	if (!tty_fd && !open("/dev/tty", O_RDWR))
+		die("open");
 
 	if (tcgetattr(tty_fd, &termio_old) < 0)
 		die("Can not get terminal attributes with tcgetattr().");
@@ -49,7 +56,6 @@ int
 main(int argc, char *argv[])
 {
 	int             code, i, j, top = 0;
-	int             tty_fd   = open("/dev/tty", O_RDWR);
 	FILE           *tty_fp   = fopen("/dev/tty", "r");
 	char           *filename = NULL;
 	Buffer         *buffer   = NULL;
