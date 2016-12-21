@@ -70,7 +70,6 @@ unraw_terminal(int fd)
 int
 main(int argc, char *argv[])
 {
-	extern Buffer *buffer;
 	struct winsize winsize;
 
 	int i, j, top = 0;
@@ -95,16 +94,14 @@ main(int argc, char *argv[])
 		}
 	}
 
-	/* buffer = buffer_read(filename); */
+	read_buffer(filename);
 
 	raw_terminal(0);
-
 	if (ioctl(0, TIOCGWINSZ, &winsize) > 0)
 		die("ioctl");
 
 	/*
 	draw_screen(buffer, winsize.ws_row, winsize.ws_col);
-
 	for (; top > 1; top--)
 		scroll_down(buffer, winsize.ws_row, winsize.ws_col);
 
@@ -114,11 +111,8 @@ main(int argc, char *argv[])
 	/* resets the terminal to the previous state. */
 	unraw_terminal(0);
 
-	/*
-	fclose(buffer->file);
-
-	buffer_free(buffer);
-	*/
+	fclose(file);
+	free_buffer(l_first);
 
 	return EXIT_SUCCESS;
 }

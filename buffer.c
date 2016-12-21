@@ -8,35 +8,32 @@
 /*
  * Read the file in a doubly linked list of lines.
  */
-Buffer *
-buffer_read(char* filename)
+void
+read_buffer(char* name)
 {
-	/* fill buffer with string */
-	Buffer *buffer = malloc(sizeof(Buffer));
-	char    s[MAX_LINE_SIZE];
+	extern Line *l_current, *l_top, *l_first, *l_last;
+	extern int n_total, n_top;
+	extern char *filename;
+	extern FILE *file;
+
+	char s[MAX_LINE_SIZE];
 
 	/* init empty buffer */
-	buffer->top   = buffer->first = buffer->last = buffer->current = NULL;
-	buffer->total = buffer->l = buffer->c = 0;
-	buffer->top_l        = 1;
-	buffer->operators[0] = '\0';
-	buffer->filename     = filename;
-	buffer->file         = NULL;
-	buffer->mode         = PAGER;
+	l_first = l_last = l_current = l_top = NULL;
+	n_total = n_top = 0;
+	filename = name;
 
 	/* open file or stdin */
 	if (!filename) {
-		buffer->file = stdin;
-	} else if (!(buffer->file = fopen(filename, "r"))) {
+		file = stdin;
+	} else if (!(file = fopen(filename, "r"))) {
 		die("fopen");
 	}
 
-	while (fgets(s, MAX_LINE_SIZE, buffer->file))
-		line_add_end(buffer, line_new(s));
+	while (fgets(s, MAX_LINE_SIZE, file))
+		line_add_end(line_new(s));
 
-	buffer->top = buffer->current = buffer->first;
-
-	return buffer;
+	l_top = l_current = l_first;
 }
 
 
@@ -61,19 +58,22 @@ line_new(char *s)
  * Add a line to the end of a doubly linked list buffer, which may be empty.
  */
 void
-line_add_end(Buffer *buffer, Line *line)
+line_add_end(Line *line)
 {
-	line->prev = buffer->last;
+	extern Line *l_last, *l_first;
+	extern int n_total;
+
+	line->prev = l_last;
 	line->next = NULL;
 
-	if (!buffer->total) {
-		buffer->first = line;
+	if (!n_total) {
+		l_first = line;
 	} else {
-		buffer->last->next = line;
+		l_last->next = line;
 	}
-	buffer->last = line;
+	l_last = line;
 
-	buffer->total++;
+	n_total++;
 }
 
 
@@ -81,19 +81,17 @@ line_add_end(Buffer *buffer, Line *line)
  * Free the buffer and its lines, starting from the first one.
  */
 void
-buffer_free(Buffer *buffer)
+free_buffer(Line *line)
 {
 	Line *next = NULL;
 
-	for (; buffer->first; buffer->first = next) {
-		next = buffer->first->next;
+	for (; line; line = next) {
+		next = line->next;
 
-		free(buffer->first->text);
-		buffer->first->text = NULL;
+		free(line->text);
+		line->text = NULL;
 
-		free(buffer->first);
-		buffer->first = NULL;
+		free(line);
+		line = NULL;
 	}
-
-	free(buffer);
 }

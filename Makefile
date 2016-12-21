@@ -1,5 +1,5 @@
 CFLAGS    = -std=c89 -pedantic -Wall -Wextra -g -static
-SRC       = main.c
+SRC       = main.c buffer.c
 OBJ       = ${SRC:.c=.o}
 
 MANPREFIX = $(PREFIX)

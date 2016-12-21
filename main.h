@@ -3,8 +3,7 @@
 #define PROGRAM_NAME            "iode"
 #define MAX_LINE_SIZE           2048
 #define MAX_KEY_SEQUENCE_LENGTH 8
-#define OPTIONS                 "abcdefghijklmnopqrstuvwxy" \
-	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+#define OPTIONS "abcdefghijklmnopqrstuvwxy"
 
 
 /* macros */
@@ -28,12 +27,6 @@ typedef struct Line {
 	struct Line *prev, *next;
 } Line;
 
-typedef struct Buffer {
-	Line *first, *last;
-	char *filename;
-	FILE *file;
-} Buffer;
-
 typedef struct Cursor {
 	int l, c;  /* cursor position in line and columns */
 } Cursor;
@@ -44,11 +37,14 @@ typedef char mode;
 /* variables */
 
 int options[128];
-Buffer *buffer;
-Line *current, *top;
+
+/* buffer */
+Line *l_current, *l_top, *l_first, *l_last;
+int n_total, n_top;
+char *filename;
+FILE *file;
+
 char operators[MAX_LINE_SIZE];
-int n_total, n_top;  /* line numbers */
-struct winsize winsize;
 
 
 /* functions */
@@ -61,13 +57,12 @@ void raw_terminal(int);
 void unraw_terminal(int);
 
 /* buffer */
-Buffer * buffer_read(char *filename);
+void     read_buffer(char *filename);
 Line   * line_new(char *s);
-void     line_add_end(Buffer *, Line *line);
-void     buffer_free(Buffer *);
-void     buffer_print(Buffer *);
+void     line_add_end(Line *line);
+void     free_buffer(Line *);
 
-/* draw */
+/* draw * /
 int  draw_char(char **, char **, int, int);
 void draw_line(Line *, int, int);
 void draw_empty_line(void);
@@ -77,11 +72,11 @@ void draw_screen(Buffer *, int, int);
 void scroll_up(Buffer *, int, int);
 void scroll_down(Buffer *, int, int);
 
-/* input */
+/* input * /
 char input_modifier(char, FILE *);
 int  input(FILE *, int, Buffer *);
 
-/* actions */
+/* actions * /
 mode a_quit();
 mode a_redraw(void);
 mode a_jump_begin(void);
@@ -94,3 +89,4 @@ mode a_scroll_up(void);
 mode a_scroll_down(void);
 mode a_increment_multiplier(void);
 mode a_editor(void);
+*/
