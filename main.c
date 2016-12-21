@@ -13,7 +13,7 @@
 void
 usage(void)
 {
-	fputs("Usage: iode [file]\n", stderr);
+	fputs("Usage: iode [file] -[" OPTIONS "]\n", stderr);
 	exit(EXIT_FAILURE);
 }
 
@@ -27,11 +27,13 @@ die(const char *message)
 }
 
 
-void
+int
 set_option(char opt)
 {
 	extern int options[];
 	options[tolower(opt)] = islower(opt);
+
+	return !!strchr(OPTIONS, opt);
 }
 
 
@@ -39,8 +41,6 @@ void
 raw_terminal(int fd)
 {
 	struct termios termios_p;
-
-	puts("raw");
 
 	if (tcgetattr(fd, &termios_p))
 		die("tcgetattr");
@@ -57,12 +57,10 @@ unraw_terminal(int fd)
 {
 	struct termios termios_p;
 
-	puts("unraw");
-
 	if (tcgetattr(fd, &termios_p))
 		die("tcgetattr");
 
-	termios_p.c_lflag |=  (ICANON | ECHO | IGNBRK);
+	termios_p.c_lflag |= (ICANON | ECHO | IGNBRK);
 
 	if (tcsetattr(fd, TCSANOW, &termios_p))
 		perror("tcsetattr");
@@ -85,7 +83,8 @@ main(int argc, char *argv[])
 
 		} else if (isalpha(argv[i][1])) {
 			for (j = 1; argv[i][j]; j++)
-				set_option(argv[i][j]);
+				if (!set_option(argv[i][j]))
+					usage();
 
 		} else if (isdigit(argv[i][1])) {
 			for (top = 0, j = 1; argv[i][j]; j++) {

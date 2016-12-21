@@ -3,6 +3,8 @@
 #define PROGRAM_NAME            "iode"
 #define MAX_LINE_SIZE           2048
 #define MAX_KEY_SEQUENCE_LENGTH 8
+#define OPTIONS                 "abcdefghijklmnopqrstuvwxy" \
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 /* macros */
@@ -33,7 +35,7 @@ typedef struct Buffer {
 } Buffer;
 
 typedef struct Cursor {
-	int l, c;            /* cursor position in line and columns */
+	int l, c;  /* cursor position in line and columns */
 } Cursor;
 
 typedef char mode;
@@ -52,9 +54,9 @@ struct winsize winsize;
 /* functions */
 
 /* main */
-void die(const char *);
 void usage(void);
-void set_option(char);
+void die(const char *);
+int  set_option(char);
 void raw_terminal(int);
 void unraw_terminal(int);
 
