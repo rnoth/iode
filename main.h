@@ -46,7 +46,6 @@ Buffer *buffer;
 Line *current, *top;
 char operators[MAX_LINE_SIZE];
 int n_total, n_top;  /* line numbers */
-FILE *tty_fp;
 struct winsize winsize;
 
 
@@ -56,7 +55,8 @@ struct winsize winsize;
 void die(const char *);
 void usage(void);
 void set_option(char);
-void set_terminal();
+void raw_terminal(int);
+void unraw_terminal(int);
 
 /* buffer */
 Buffer * buffer_read(char *filename);

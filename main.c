@@ -10,9 +10,6 @@
 #include "main.h"
 
 
-int tty_fd = -1;
-
-
 void
 usage(void)
 {
@@ -25,7 +22,7 @@ void
 die(const char *message)
 {
 	perror(message);
-	set_terminal();
+	unraw_terminal(0);
 	exit(EXIT_FAILURE);
 }
 
@@ -38,33 +35,43 @@ set_option(char opt)
 }
 
 
-/*
- * Switch terminal state between "normal" and "one char at a time".
- */
 void
-set_terminal()
+raw_terminal(int fd)
 {
-	struct termios *termio = NULL;
-	extern int tty_fd;
+	struct termios termios_p;
 
-	if (tty_fd < 0) {
-		if ((tty_fd = open("/dev/tty", O_RDWR)) < 0)
-			die("open");
-		termio->c_lflag &= ~(ICANON | ECHO | IGNBRK);
-		tcsetattr(tty_fd, TCSANOW, termio);
-	} else {
-		termio->c_lflag |= ICANON | ECHO | IGNBRK;
-		tcsetattr(tty_fd, TCSANOW, termio);
-		if (close(tty_fd))
-			die("close");
-	}
+	puts("raw");
+
+	if (tcgetattr(fd, &termios_p))
+		die("tcgetattr");
+
+	termios_p.c_lflag &= ~(ICANON | ECHO | IGNBRK);
+
+	if (tcsetattr(fd, TCSANOW, &termios_p))
+		die("tcsetattr");
+}
+
+
+void
+unraw_terminal(int fd)
+{
+	struct termios termios_p;
+
+	puts("unraw");
+
+	if (tcgetattr(fd, &termios_p))
+		die("tcgetattr");
+
+	termios_p.c_lflag |=  (ICANON | ECHO | IGNBRK);
+
+	if (tcsetattr(fd, TCSANOW, &termios_p))
+		perror("tcsetattr");
 }
 
 
 int
 main(int argc, char *argv[])
 {
-	extern FILE *tty_fp;
 	extern Buffer *buffer;
 	struct winsize winsize;
 
@@ -91,9 +98,9 @@ main(int argc, char *argv[])
 
 	/* buffer = buffer_read(filename); */
 
-	set_terminal();
+	raw_terminal(0);
 
-	if (ioctl(tty_fd, TIOCGWINSZ, &winsize) > 0)
+	if (ioctl(0, TIOCGWINSZ, &winsize) > 0)
 		die("ioctl");
 
 	/*
@@ -101,19 +108,13 @@ main(int argc, char *argv[])
 
 	for (; top > 1; top--)
 		scroll_down(buffer, winsize.ws_row, winsize.ws_col);
-	*/
 
-	if (!(tty_fp = fopen("/dev/tty", "r")))
-		die("fopen");
-	/*
 	input();
 	*/
 
 	/* resets the terminal to the previous state. */
-	set_terminal();
-	fprintf(stderr, "\033[%d;0H\033[?6c", winsize.ws_row);
+	unraw_terminal(0);
 
-	fclose(tty_fp);
 	/*
 	fclose(buffer->file);
 
