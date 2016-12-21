@@ -1,14 +1,16 @@
-#include <stdlib.h>
-#include <stdio.h>
+#include <ctype.h>
 #include <fcntl.h>
-#include <termios.h>
-#include <sys/ioctl.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <termios.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 
 #include "main.h"
 
 
-int tty_fd = 0;
+int tty_fd = -1;
 
 
 void
@@ -19,98 +21,104 @@ usage(void)
 }
 
 
-/*
- * Set terminal to send one char at a time for interactive mode, and return the
- * last terminal state.
- */
-void
-set_terminal()
-{
-	extern int tty_fd;
-	struct termios termio;
-
-	if (!tty_fd && !open("/dev/tty", O_RDWR))
-		die("open");
-
-	if (tcgetattr(tty_fd, &termio_old) < 0)
-		die("Can not get terminal attributes with tcgetattr().");
-
-	termio_new          = termio_old;
-	termio_new.c_lflag &= ~(ICANON | ECHO | IGNBRK);
-
-	tcsetattr(tty_fd, TCSANOW, &termio_new);
-
-	return termio_old;
-}
-
-
 void
 die(const char *message)
 {
 	perror(message);
+	set_terminal();
 	exit(EXIT_FAILURE);
+}
+
+
+void
+set_option(char opt)
+{
+	extern int options[];
+	options[tolower(opt)] = islower(opt);
+}
+
+
+/*
+ * Switch terminal state between "normal" and "one char at a time".
+ */
+void
+set_terminal()
+{
+	struct termios *termio = NULL;
+	extern int tty_fd;
+
+	if (tty_fd < 0) {
+		if ((tty_fd = open("/dev/tty", O_RDWR)) < 0)
+			die("open");
+		termio->c_lflag &= ~(ICANON | ECHO | IGNBRK);
+		tcsetattr(tty_fd, TCSANOW, termio);
+	} else {
+		termio->c_lflag |= ICANON | ECHO | IGNBRK;
+		tcsetattr(tty_fd, TCSANOW, termio);
+		if (close(tty_fd))
+			die("close");
+	}
 }
 
 
 int
 main(int argc, char *argv[])
 {
-	int             code, i, j, top = 0;
-	FILE           *tty_fp   = fopen("/dev/tty", "r");
-	char           *filename = NULL;
-	Buffer         *buffer   = NULL;
-	struct termios  termio;
-	struct winsize  w;
+	extern FILE *tty_fp;
+	extern Buffer *buffer;
+	struct winsize winsize;
+
+	int i, j, top = 0;
+	char *filename = NULL;
 
 	/* command line arguments */
 	for (i = 1; i < argc; i++) {
+		if (argv[i][0] && argv[i][0] != '-' && argv[i][0] != '+') {
+			filename = argv[i];
 
-		if (argv[i][0] == '-') {
-			switch (argv[i][1]) {
+		} else if (isalpha(argv[i][1])) {
+			for (j = 1; argv[i][j]; j++)
+				set_option(argv[i][j]);
 
-			case 'R':
-
-				break;
-
-			default:
-				usage();
-				break;
-			}
-
-		} else if (argv[i][0] == '+') {
+		} else if (isdigit(argv[i][1])) {
 			for (top = 0, j = 1; argv[i][j]; j++) {
 				if (argv[i][j] < '0' || argv[i][j] > '9')
 					usage();
 				top = 10 * top + argv[i][j] - '0';
 			}
-
-		} else {
-			filename = argv[i];
 		}
 	}
 
-	buffer = buffer_read(filename);
+	/* buffer = buffer_read(filename); */
 
-	termio = set_terminal(tty_fd);
-	if (ioctl(tty_fd, TIOCGWINSZ, &w) > 0)
+	set_terminal();
+
+	if (ioctl(tty_fd, TIOCGWINSZ, &winsize) > 0)
 		die("ioctl");
 
-	fprintf(stderr, "\033[2J\033[%d;0H\033[?16c", w.ws_row);
-	draw_screen(buffer, w.ws_row, w.ws_col);
+	/*
+	draw_screen(buffer, winsize.ws_row, winsize.ws_col);
 
-	/* jump to initial position */
 	for (; top > 1; top--)
-		scroll_down(buffer, w.ws_row, w.ws_col);
+		scroll_down(buffer, winsize.ws_row, winsize.ws_col);
+	*/
 
-	code = input(tty_fp, tty_fd, buffer);
+	if (!(tty_fp = fopen("/dev/tty", "r")))
+		die("fopen");
+	/*
+	input();
+	*/
 
 	/* resets the terminal to the previous state. */
-	tcsetattr(tty_fd, TCSANOW, &termio);
+	set_terminal();
+	fprintf(stderr, "\033[%d;0H\033[?6c", winsize.ws_row);
+
 	fclose(tty_fp);
+	/*
 	fclose(buffer->file);
-	fprintf(stderr, "\033[%d;0H\033[?6c", w.ws_row);
 
 	buffer_free(buffer);
+	*/
 
-	return code;
+	return EXIT_SUCCESS;
 }

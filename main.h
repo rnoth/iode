@@ -7,12 +7,11 @@
 
 /* macros */
 
-#define CONTROL(c)    (c ^ 0x40)
-#define ISCONTROL(c)  ((unsigned char) c <  0x1f)
-#define ISASCII(c)    ((unsigned char) c <  0x80)
-#define ISUTF8(c)     ((unsigned char) c >= 0x80)
-#define MIN(X, Y)     (((X) < (Y)) ? (X) : (Y))
-#define MAX(X, Y)     (((X) > (Y)) ? (X) : (Y))
+#define CONTROL(c)   (c ^ 0x40)
+#define ISASCII(c)   ((unsigned char) c <  0x80)
+#define ISUTF8(c)    ((unsigned char) c >= 0x80)
+#define MIN(X, Y)    (((X) < (Y)) ? (X) : (Y))
+#define MAX(X, Y)    (((X) > (Y)) ? (X) : (Y))
 
 
 /* enums */
@@ -35,24 +34,29 @@ typedef struct Buffer {
 
 typedef struct Cursor {
 	int l, c;            /* cursor position in line and columns */
-}
+} Cursor;
 
 typedef char mode;
 
 
 /* variables */
 
-Line *current, *top; 
+int options[128];
+Buffer *buffer;
+Line *current, *top;
 char operators[MAX_LINE_SIZE];
 int n_total, n_top;  /* line numbers */
-int mode;
+FILE *tty_fp;
+struct winsize winsize;
 
 
 /* functions */
 
 /* main */
-void           die(const char *);
-struct termios set_terminal(int);
+void die(const char *);
+void usage(void);
+void set_option(char);
+void set_terminal();
 
 /* buffer */
 Buffer * buffer_read(char *filename);
@@ -72,19 +76,19 @@ void scroll_up(Buffer *, int, int);
 void scroll_down(Buffer *, int, int);
 
 /* input */
-char input_modifier(Arg *, char, FILE *);
+char input_modifier(char, FILE *);
 int  input(FILE *, int, Buffer *);
 
 /* actions */
 mode a_quit();
-mode a_redraw(Arg *);
-mode a_jump_begin(Arg *);
-mode a_jump_end(Arg *);
-mode a_half_page_up(Arg *);
-mode a_half_page_down(Arg *);
-mode a_page_up(Arg *);
-mode a_page_down(Arg *);
-mode a_scroll_up(Arg *);
-mode a_scroll_down(Arg *);
-mode a_increment_multiplier(Arg *);
-mode a_editor(Arg *);
+mode a_redraw(void);
+mode a_jump_begin(void);
+mode a_jump_end(void);
+mode a_half_page_up(void);
+mode a_half_page_down(void);
+mode a_page_up(void);
+mode a_page_down(void);
+mode a_scroll_up(void);
+mode a_scroll_down(void);
+mode a_increment_multiplier(void);
+mode a_editor(void);
