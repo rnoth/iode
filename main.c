@@ -10,6 +10,9 @@
 #include "main.h"
 
 
+int tty_fd;
+
+
 void
 usage(void)
 {
@@ -22,7 +25,7 @@ void
 die(const char *message)
 {
 	perror(message);
-	unraw_terminal(0);
+	set_terminal(RESET);
 	exit(EXIT_FAILURE);
 }
 
@@ -37,33 +40,41 @@ set_option(char opt)
 }
 
 
+/*
+ * Set terminal to raw mode or reset it back.
+ *
+ * @mode:
+ * - RAW (opening /dev/tty in tty_fd);
+ * - RESET (closing  tty_fd).
+ */
 void
-raw_terminal(int fd)
+set_terminal(int mode)
 {
+	extern int tty_fd;
+
 	struct termios termios_p;
 
-	if (tcgetattr(fd, &termios_p))
-		die("tcgetattr");
+	if (mode == RAW)
+		tty_fd = open("/dev/tty", O_RDWR);
 
-	termios_p.c_lflag &= ~(ICANON | ECHO | IGNBRK);
+	if (tcgetattr(tty_fd, &termios_p)) {
+		perror("tcgetattr");
+		exit(EXIT_FAILURE);
+	}
 
-	if (tcsetattr(fd, TCSANOW, &termios_p))
-		die("tcsetattr");
-}
+	if (mode == RAW) {
+		termios_p.c_lflag &= ~(ICANON | ECHO | IGNBRK);
+	} else if (mode == RESET) {
+		termios_p.c_lflag |=  (ICANON | ECHO | IGNBRK);
+	}
 
-
-void
-unraw_terminal(int fd)
-{
-	struct termios termios_p;
-
-	if (tcgetattr(fd, &termios_p))
-		die("tcgetattr");
-
-	termios_p.c_lflag |= (ICANON | ECHO | IGNBRK);
-
-	if (tcsetattr(fd, TCSANOW, &termios_p))
+	if (tcsetattr(tty_fd, TCSANOW, &termios_p)) {
 		perror("tcsetattr");
+		exit(EXIT_FAILURE);
+	}
+
+	if (mode == RESET)
+		tty_fd = close(tty_fd);
 }
 
 
@@ -96,8 +107,8 @@ main(int argc, char *argv[])
 
 	read_buffer(filename);
 
-	raw_terminal(0);
-	if (ioctl(0, TIOCGWINSZ, &winsize) > 0)
+	set_terminal(RAW);
+	if (ioctl(tty_fd, TIOCGWINSZ, &winsize) > 0)
 		die("ioctl");
 
 	/*
@@ -109,7 +120,7 @@ main(int argc, char *argv[])
 	*/
 
 	/* resets the terminal to the previous state. */
-	unraw_terminal(0);
+	set_terminal(RESET);
 
 	fclose(file);
 	free_buffer(l_first);

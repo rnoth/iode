@@ -17,7 +17,8 @@
 
 /* enums */
 
-enum { CONTINUE = 2, PAGER, EDIT, SEARCH, INSERT, REPLACE };
+enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE };
+enum { RAW, RESET };
 
 
 /* datatypes */
@@ -36,7 +37,9 @@ typedef char mode;
 
 /* variables */
 
+char operators[MAX_LINE_SIZE];
 int options[128];
+int tty_fd;
 
 /* buffer */
 Line *l_current, *l_top, *l_first, *l_last;
@@ -44,7 +47,6 @@ int n_total, n_top;
 char *filename;
 FILE *file;
 
-char operators[MAX_LINE_SIZE];
 
 
 /* functions */
@@ -53,8 +55,7 @@ char operators[MAX_LINE_SIZE];
 void usage(void);
 void die(const char *);
 int  set_option(char);
-void raw_terminal(int);
-void unraw_terminal(int);
+void set_terminal(int);
 
 /* buffer */
 void     read_buffer(char *filename);
