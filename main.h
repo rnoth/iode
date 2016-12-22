@@ -63,15 +63,15 @@ Line   * line_new(char *s);
 void     line_add_end(Line *line);
 void     free_buffer(Line *);
 
-/* draw * /
-int  draw_char(char **, char **, int, int);
-void draw_line(Line *, int, int);
+/* draw */
+int  draw_char(char **, char **, int);
+void draw_line(Line *, int);
 void draw_empty_line(void);
-void draw_status_line(Buffer *, int);
-void update_status_line(Buffer *, int, int);
-void draw_screen(Buffer *, int, int);
-void scroll_up(Buffer *, int, int);
-void scroll_down(Buffer *, int, int);
+void draw_status_line(void);
+void update_status_line(void);
+void draw_screen(void);
+void scroll_up(void);
+void scroll_down(void);
 
 /* input * /
 char input_modifier(char, FILE *);

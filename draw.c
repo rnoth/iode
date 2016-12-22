@@ -1,5 +1,7 @@
 /*
- * In this code, "char" refers to the eight bits that compose a char, and
+ * Functions for darwing the interface using vt100 escape sequence.
+ *
+ * Through this code, "char" refers to the eight bits that compose a char, and
  * "character" is the single or multiple character considered as one character.
  */
 
@@ -19,7 +21,7 @@
  * Return: onscreen width of the char while printed.
  */
 int
-draw_char(char **character, char **text, int col, int vis)
+draw_char(char **character, char **text, int col)
 {
 	int i     = 0;  /* how many chars did we read to render one character */
 	int width = 0;  /* how much screen width is this character taking */
@@ -32,8 +34,8 @@ draw_char(char **character, char **text, int col, int vis)
 			width = 1;
 			i = 1;
 
-		/* mandoc adds '^H' between some characters */
-		} else if ((!vis && t[0] == CONTROL('H'))) {
+		/* mandoc adds '^H' between each heading characters */
+		} else if ((t[0] == CONTROL('H'))) {
 			c[0] = t[0]; c[1] = '\0';
 			width = -1;
 			i = 1;
@@ -45,7 +47,7 @@ draw_char(char **character, char **text, int col, int vis)
 			i = 1;
 
 		/* escape codes */
-		} else if (!vis && (t[0] == '\033')) {
+		} else if ((t[0] == '\033')) {
 			for (i = 0; t[i] && !isalpha(t[i]); i++)
 				c[i] = t[i];
 			c[i] = '\0';
@@ -53,7 +55,7 @@ draw_char(char **character, char **text, int col, int vis)
 			width = -1;
 
 		/* control characters */
-		} else if (ISCONTROL(t[0])) {
+		} else if (iscntrl(t[0])) {
 			sprintf(c, "\033[1;30m^%c\033[m", t[0] + '@');
 			width = 2;
 			i = 1;
@@ -69,7 +71,7 @@ draw_char(char **character, char **text, int col, int vis)
 		for (i = 0; t[i] && ISUTF8(t[i]); i++)
 			c[i] = t[i];
 		c[i] = '\0';
-		width = 0;
+		width = 1;
 	}
 
 	*character = c;
@@ -82,8 +84,10 @@ draw_char(char **character, char **text, int col, int vis)
  * Draw a full line up to the width of the screen.
  */
 void
-draw_line(Line *line, int cols, int number)
+draw_line(Line *line, int number)
 {
+	extern int cols;
+
 	int col = 0;
 	/*                4 max size for UTF-8
 	 *               11 "\033[1;3%sm" and "\033[m"
@@ -95,7 +99,7 @@ draw_line(Line *line, int cols, int number)
 
 	/* draw chars until the screen is filled or end of string */
 	for (; text[0] && cols - col > 0;) {
-		col += draw_char(&c, &text, col, 0);
+		col += draw_char(&c, &text, col);
 
 		fputs(c, stderr);
 
@@ -107,7 +111,7 @@ draw_line(Line *line, int cols, int number)
 	}
 
 	fputc('\n', stderr);
-	
+
 	free(c);
 }
 
@@ -123,11 +127,14 @@ draw_empty_line(void)
 
 
 void
-draw_status_line(Buffer *buffer, int cols)
+draw_status_line(void)
 {
+	extern char *filename, operators[];
+	extern int n_total, cols;
+
 	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d - %s\033[m",
-		cols - 20 - (int) strlen(buffer->operators),
-		buffer->operators, buffer->total, buffer->filename);
+		cols - 20 - (int) strlen(operators),
+		operators, n_total, filename);
 }
 
 
@@ -135,10 +142,12 @@ draw_status_line(Buffer *buffer, int cols)
  * Draw the status line without changing the cursor position
  */
 void
-update_status_line(Buffer *buffer, int rows, int cols)
+update_status_line(void)
 {
+	extern int rows;
+
 	fprintf(stderr, "\033[s\033[%d;0H", rows);
-	draw_status_line(buffer, cols);
+	draw_status_line();
 	fputs("\033[u", stderr);
 }
 
@@ -147,20 +156,23 @@ update_status_line(Buffer *buffer, int rows, int cols)
  * Draw the full interface
  */
 void
-draw_screen(Buffer *buffer, int rows, int cols)
+draw_screen()
 {
-	Line *line   = buffer->top;
-	int   number = buffer->top_l;
-		
-	fputs("\033[s\033[H", stderr);
-	
-	for (; line && rows > 1; line = line->next, rows--, number++)
-		draw_line(line, cols, number);
+	extern Line *l_top;
+	extern int   n_top, rows;
 
-	for (; rows > 1; rows--)
+	Line *l = l_top;
+	int   n = n_top, r = rows;
+
+	fputs("\033[s\033[H", stderr);
+
+	for (; l && r > 1; l = l->next, r--, n++)
+		draw_line(l, n);
+
+	for (; r > 1; r--)
 		draw_empty_line();
 
-	draw_status_line(buffer, cols);
+	draw_status_line();
 
 	fputs("\033[u", stderr);
 }
@@ -171,23 +183,20 @@ draw_screen(Buffer *buffer, int rows, int cols)
  * the status line.
  */
 void
-scroll_up(Buffer *buffer, int rows, int cols)
+scroll_up(void)
 {
-	if (!buffer->top || !buffer->top->prev)
+	extern Line *l_top;
+	extern int rows, cols;
+
+	if (!l_top || !l_top->prev)
 		return;
+	l_top = l_top->prev;
 
-	buffer->top = buffer->top->prev;
-
-	/* save cursor position, go to at the bottom, scroll one line up */
 	fputs("\033[s\033[0;0H\033M", stderr);
+	draw_line(l_top, --n_top);
 
-	draw_line(buffer->top, cols, --buffer->top_l);
-
-	/* go to the bottom */
 	fprintf(stderr, "\033[%d;0H", rows);
-
-	draw_status_line(buffer, cols);
-
+	draw_status_line();
 	fputs("\033[u", stderr);
 }
 
@@ -196,29 +205,30 @@ scroll_up(Buffer *buffer, int rows, int cols)
  * Scroll down one line by printing a new line, then print the status line.
  */
 void
-scroll_down(Buffer *buffer, int rows, int cols)
+scroll_down(void)
 {
-	int   i;
-	Line *line = buffer->top;
+	extern Line *l_top;
+	extern int rows;
+
+	int i;
+	Line *line = l_top;
 
 	for (i = 0; i < rows - 1 && line; i++, line = line->next);
 
-	if (!buffer->top || !buffer->top->next)
+	if (!l_top || !l_top->next)
 		return;
 
-	buffer->top = buffer->top->next;
-	buffer->top_l++;
+	l_top = l_top->next;
+	n_top++;
 
-	/* save cursor position, go to the bottom */
 	fprintf(stderr, "\033[s\033[%d;0H", rows);
-
 	if (line) {
-		draw_line(line, cols, buffer->top_l + rows - 2);
+		draw_line(line, n_top + rows - 2);
 	} else {
 		draw_empty_line();
 	}
 
-	draw_status_line(buffer, cols);
+	draw_status_line();
 
 	fputs("\033[u", stderr);
 }
