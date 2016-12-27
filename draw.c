@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/ioctl.h>
 
 #include "main.h"
 
@@ -164,6 +165,8 @@ draw_screen()
 	Line *l = l_top;
 	int   n = n_top, r = rows;
 
+	update_terminal_size();
+
 	fputs("\033[s\033[H", stderr);
 
 	for (; l && r > 1; l = l->next, r--, n++)
@@ -175,6 +178,21 @@ draw_screen()
 	draw_status_line();
 
 	fputs("\033[u", stderr);
+}
+
+
+void
+update_terminal_size(void)
+{
+	extern int rows, cols;
+
+	struct winsize w;
+
+	if (ioctl(tty_fd, TIOCGWINSZ, &w) > 0)
+		die("ioctl");
+
+	rows = w.ws_row;
+	cols = w.ws_col;
 }
 
 

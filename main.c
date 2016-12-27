@@ -5,7 +5,6 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
-#include <sys/ioctl.h>
 
 #include "main.h"
 
@@ -81,8 +80,6 @@ set_terminal(int mode)
 int
 main(int argc, char *argv[])
 {
-	struct winsize winsize;
-
 	int i, j, top = 0;
 	char *filename = NULL;
 
@@ -108,13 +105,12 @@ main(int argc, char *argv[])
 	read_buffer(filename);
 
 	set_terminal(RAW);
-	if (ioctl(tty_fd, TIOCGWINSZ, &winsize) > 0)
-		die("ioctl");
 
+	update_terminal_size();
+	draw_screen();
 	/*
-	draw_screen(buffer, winsize.ws_row, winsize.ws_col);
 	for (; top > 1; top--)
-		scroll_down(buffer, winsize.ws_row, winsize.ws_col);
+		scroll_down(buffer, w.ws_row, w.ws_col);
 
 	input();
 	*/

@@ -40,13 +40,13 @@ typedef char mode;
 char operators[MAX_LINE_SIZE];
 int options[128];
 int tty_fd;
+int rows, cols;
 
 /* buffer */
 Line *l_current, *l_top, *l_first, *l_last;
 int n_total, n_top;
 char *filename;
 FILE *file;
-
 
 
 /* functions */
@@ -70,14 +70,15 @@ void draw_empty_line(void);
 void draw_status_line(void);
 void update_status_line(void);
 void draw_screen(void);
+void update_terminal_size(void);
 void scroll_up(void);
 void scroll_down(void);
 
-/* input * /
-char input_modifier(char, FILE *);
-int  input(FILE *, int, Buffer *);
+/* input */
+char input_modifier(char);
+int  input();
 
-/* actions * /
+/* actions */
 mode a_quit();
 mode a_redraw(void);
 mode a_jump_begin(void);
@@ -90,4 +91,3 @@ mode a_scroll_up(void);
 mode a_scroll_down(void);
 mode a_increment_multiplier(void);
 mode a_editor(void);
-*/
