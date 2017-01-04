@@ -95,6 +95,11 @@ draw_line(Line *line, int number)
 	 *                1 null byte */
 	char *c = malloc(16 * sizeof(char)), *text = line->text;
 
+	if (!line) {
+		fputs("      \033[1;30m.\033[m\033[K\n", stderr);
+		return;
+	}
+
 	fprintf(stderr, "\033[K\033[1;30m%7d\033[m ", number);
 	col += 8;
 
@@ -114,16 +119,6 @@ draw_line(Line *line, int number)
 	fputc('\n', stderr);
 
 	free(c);
-}
-
-
-/*
- * Print an line representing the end of the buffer.
- */
-void
-draw_empty_line(void)
-{
-	fputs("      \033[1;30m.\033[m\033[K\n", stderr);
 }
 
 
@@ -169,11 +164,8 @@ draw_screen()
 
 	fputs("\033[s\033[H", stderr);
 
-	for (; l && r > 1; l = l->next, r--, n++)
+	for (; r > 1; l = l ? l->next : NULL, r--, n++)
 		draw_line(l, n);
-
-	for (; r > 1; r--)
-		draw_empty_line();
 
 	draw_status_line();
 
@@ -240,11 +232,7 @@ scroll_down(void)
 	n_top++;
 
 	fprintf(stderr, "\033[s\033[%d;0H", rows);
-	if (line) {
-		draw_line(line, n_top + rows - 2);
-	} else {
-		draw_empty_line();
-	}
+	draw_line(line, n_top + rows - 2);
 
 	draw_status_line();
 

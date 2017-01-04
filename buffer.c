@@ -6,6 +6,35 @@
 
 
 /*
+ * Allocates and initialize a new line with the string content.
+ */
+Line *
+new_line(char *s)
+{
+	Line *line = malloc(sizeof(Line));
+
+	line->text = malloc((strlen(s) + 1) * sizeof(char));
+	strcpy(line->text, s);
+	if (line->text[0] && line->text[strlen(line->text) - 1] == '\n')
+		line->text[strlen(line->text) - 1] = '\0';
+
+	line->next = line->prev = NULL;
+
+	return line;
+}
+
+
+void
+link_lines(Line *prev, Line *next)
+{
+	if (prev)
+		prev->next = next;
+	if (next)
+		next->prev = prev;
+}
+
+
+/*
  * Read the file in a doubly linked list of lines.
  */
 void
@@ -30,50 +59,14 @@ read_buffer(char* name)
 		die("fopen");
 	}
 
-	while (fgets(s, MAX_LINE_SIZE, file))
-		line_add_end(line_new(s));
+	for (n_total = 0; fgets(s, MAX_LINE_SIZE, file); n_total++) {
+		l_current = new_line(s);
+		link_lines(l_last, l_current);
+		l_last = l_current;
+		l_first = l_first ? l_first : l_current;
+	}
 
 	l_top = l_current = l_first;
-}
-
-
-/*
- * Allocates and initialize a new line with the string content.
- */
-Line *
-line_new(char *s)
-{
-	Line *line = malloc(sizeof(Line));
-
-	line->text = malloc((strlen(s) + 1) * sizeof(char));
-	strcpy(line->text, s);
-	if (line->text[0] && line->text[strlen(line->text) - 1] == '\n')
-		line->text[strlen(line->text) - 1] = '\0';
-
-	return line;
-}
-
-
-/*
- * Add a line to the end of a doubly linked list buffer, which may be empty.
- */
-void
-line_add_end(Line *line)
-{
-	extern Line *l_last, *l_first;
-	extern int n_total;
-
-	line->prev = l_last;
-	line->next = NULL;
-
-	if (!n_total) {
-		l_first = line;
-	} else {
-		l_last->next = line;
-	}
-	l_last = line;
-
-	n_total++;
 }
 
 

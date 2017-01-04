@@ -3,7 +3,7 @@
 #define PROGRAM_NAME            "iode"
 #define MAX_LINE_SIZE           2048
 #define MAX_KEY_SEQUENCE_LENGTH 8
-#define OPTIONS "abcdefghijklmnopqrstuvwxy"
+#define FLAGS "abcdefghijklmnopqrstuvwxy"
 
 
 /* macros */
@@ -18,7 +18,6 @@
 /* enums */
 
 enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE };
-enum { RAW, RESET };
 
 
 /* datatypes */
@@ -38,7 +37,7 @@ typedef char mode;
 /* variables */
 
 char operators[MAX_LINE_SIZE];
-int options[128];
+int flags[128];
 int tty_fd;
 int rows, cols;
 
@@ -52,21 +51,16 @@ FILE *file;
 /* functions */
 
 /* main */
-void usage(void);
 void die(const char *);
-int  set_option(char);
-void set_terminal(int);
+int  set_flag(char, int);
 
 /* buffer */
 void     read_buffer(char *filename);
-Line   * line_new(char *s);
-void     line_add_end(Line *line);
+Line   * new_line(char *s);
 void     free_buffer(Line *);
 
 /* draw */
-int  draw_char(char **, char **, int);
 void draw_line(Line *, int);
-void draw_empty_line(void);
 void draw_status_line(void);
 void update_status_line(void);
 void draw_screen(void);

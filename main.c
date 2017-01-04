@@ -15,36 +15,17 @@ int tty_fd;
 void
 usage(void)
 {
-	fputs("Usage: iode [file] -[" OPTIONS "]\n", stderr);
+	fputs("Usage: iode [+-][" FLAGS "] [file]\n", stderr);
 	exit(EXIT_FAILURE);
 }
 
 
-void
-die(const char *message)
-{
-	perror(message);
-	set_terminal(RESET);
-	exit(EXIT_FAILURE);
-}
-
-
-int
-set_option(char opt)
-{
-	extern int options[];
-	options[tolower(opt)] = islower(opt);
-
-	return !!strchr(OPTIONS, opt);
-}
-
+enum { RAW, RESET };  /* mode */
 
 /*
  * Set terminal to raw mode or reset it back.
  *
- * @mode:
- * - RAW (opening /dev/tty in tty_fd);
- * - RESET (closing  tty_fd).
+ * RAW opens /dev/tty in tty_fd and RESET it
  */
 void
 set_terminal(int mode)
@@ -77,27 +58,55 @@ set_terminal(int mode)
 }
 
 
+void
+die(const char *message)
+{
+	perror(message);
+	set_terminal(RESET);
+	exit(EXIT_FAILURE);
+}
+
+
+int
+set_flag(char flag, int value)
+{
+	extern int flags[];
+
+	flags[tolower(flag)] = value;
+
+	return strchr(FLAGS, tolower(flag)) != NULL;
+}
+
+
 int
 main(int argc, char *argv[])
 {
+	extern int flags[];
+
 	int i, j, top = 0;
 	char *filename = NULL;
 
 	/* command line arguments */
 	for (i = 1; i < argc; i++) {
-		if (argv[i][0] && argv[i][0] != '-' && argv[i][0] != '+') {
-			filename = argv[i];
+		if (!argv[i][0]) {
+			usage();
 
-		} else if (isalpha(argv[i][1])) {
-			for (j = 1; argv[i][j]; j++)
-				if (!set_option(argv[i][j]))
-					usage();
+		} else if (argv[i][0] != '-' && argv[i][0] != '+') {
+			filename = argv[i];
 
 		} else if (isdigit(argv[i][1])) {
 			for (top = 0, j = 1; argv[i][j]; j++) {
 				if (argv[i][j] < '0' || argv[i][j] > '9')
 					usage();
 				top = 10 * top + argv[i][j] - '0';
+			}
+			top = argv[i][0] == '-' ? top : -top;
+
+		} else {
+			for (j = 1; argv[i][j]; j++) {
+				if (!set_flag(argv[i][j], argv[i][0] == '-')) {
+					usage();
+				}
 			}
 		}
 	}
