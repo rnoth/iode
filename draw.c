@@ -37,9 +37,12 @@ draw_char(char **character, char **text, int col)
 
 		/* mandoc adds '^H' between each heading characters */
 		} else if ((t[0] == CONTROL('H'))) {
-			c[0] = t[0]; c[1] = '\0';
-			width = -1;
-			i = 1;
+			c[0] = '\033'; c[1] = '['; c[2] = '1'; c[3] = 'm';
+			c[4] = t[0]; c[5] = t[1];
+			c[6] = '\033'; c[7] = '['; c[8] = '0'; c[9] = 'm';
+			c[10] = '\0';
+			width = 0;
+			i = 2;
 
 		/* tab */
 		} else if (t[0] == '\t') {
