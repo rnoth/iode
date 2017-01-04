@@ -93,7 +93,7 @@ draw_line(Line *line, int number)
 	/*                4 max size for UTF-8
 	 *               11 "\033[1;3%sm" and "\033[m"
 	 *                1 null byte */
-	char *c = malloc(16 * sizeof(char)), *text = line->text;
+	char *c = NULL, *text = NULL;
 
 	if (!line) {
 		fputs("      \033[1;30m.\033[m\033[K\n", stderr);
@@ -104,6 +104,8 @@ draw_line(Line *line, int number)
 	col += 8;
 
 	/* draw chars until the screen is filled or end of string */
+	c    = malloc(16 * sizeof(char));
+	text = line->text;
 	for (; text[0] && cols - col > 0;) {
 		col += draw_char(&c, &text, col);
 

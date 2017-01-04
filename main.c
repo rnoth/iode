@@ -126,7 +126,7 @@ main(int argc, char *argv[])
 
 	/* reset the terminal */
 	update_terminal_size();
-	printf("\033[%d;0H\n", cols);
+	fprintf(stderr, "\033[%d;0H\n", cols);
 	set_terminal(RESET);
 
 	fclose(file);
