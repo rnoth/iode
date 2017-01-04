@@ -8,7 +8,9 @@
 void
 a_quit()
 {
-	die("iode");
+	extern int mode;
+
+	mode = EXIT_SUCCESS;
 }
 
 

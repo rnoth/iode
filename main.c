@@ -61,7 +61,13 @@ set_terminal(int mode)
 void
 die(const char *message)
 {
+	extern Line * l_first;
+
 	perror(message);
+
+	if (l_first)
+		free_buffer(l_first);
+
 	set_terminal(RESET);
 	exit(EXIT_FAILURE);
 }

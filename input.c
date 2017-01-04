@@ -36,12 +36,13 @@ input()
 {
 	extern keybinding keybindings[];
 	extern int multiplier;
+	extern int mode;
 
-	int mode = PAGER;
 	size_t i = 0;
 	char k;
 
 	/* main execution loop: get input char by char from the keyboard */
+	mode = PAGER;
 	while (mode != EXIT_FAILURE && mode != EXIT_SUCCESS) {
 
 		k = fgetc(stdin);

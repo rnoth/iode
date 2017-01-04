@@ -43,7 +43,7 @@ typedef struct keybinding {
 
 char operators[MAX_LINE_SIZE];
 int flags[128];  /* command line and interactive options */
-int multiplier;
+int multiplier, mode;
 
 /* terminal */
 int tty_fd;
