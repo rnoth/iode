@@ -76,7 +76,7 @@ void scroll_up(void);
 void scroll_down(void);
 
 /* input */
-int  input();
+int  input(void);
 
 /* actions */
 void a_quit(void);

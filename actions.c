@@ -148,8 +148,6 @@ a_editor(void)
 	free_buffer(l_first);
 	fclose(file);
 	read_buffer(filename);
-	n_top  = n_top;
-	l_top  = l_top;
 
 	draw_screen();
 }

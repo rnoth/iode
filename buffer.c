@@ -41,7 +41,7 @@ void
 read_buffer(char* name)
 {
 	extern Line *l_current, *l_top, *l_first, *l_last;
-	extern int n_total, n_top;
+	extern int n_total;
 	extern char *filename;
 	extern FILE *file;
 
@@ -49,7 +49,6 @@ read_buffer(char* name)
 
 	/* init empty buffer */
 	l_first = l_last = l_current = l_top = NULL;
-	n_total = n_top = 0;
 	filename = name;
 
 	/* open file or stdin */

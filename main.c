@@ -82,9 +82,12 @@ int
 main(int argc, char *argv[])
 {
 	extern int flags[];
+	extern int n_top;
 
-	int i, j, top = 0;
+	int i, j;
 	char *filename = NULL;
+
+	n_top = 1;
 
 	/* command line arguments */
 	for (i = 1; i < argc; i++) {
@@ -95,12 +98,11 @@ main(int argc, char *argv[])
 			filename = argv[i];
 
 		} else if (isdigit(argv[i][1])) {
-			for (top = 0, j = 1; argv[i][j]; j++) {
+			for (n_top = 1, j = 1; argv[i][j]; j++) {
 				if (argv[i][j] < '0' || argv[i][j] > '9')
 					usage();
-				top = 10 * top + argv[i][j] - '0';
+				n_top = 10 * n_top + argv[i][j] - '0';
 			}
-			top = argv[i][0] == '-' ? top : -top;
 
 		} else {
 			for (j = 1; argv[i][j]; j++) {
@@ -116,13 +118,10 @@ main(int argc, char *argv[])
 	set_terminal(RAW);
 
 	update_terminal_size();
+	fprintf(stderr, "\033[%d;0H\n", cols);
 	draw_screen();
-	/*
-	for (; top > 1; top--)
-		scroll_down(buffer, rows, cols);
 
 	input();
-	*/
 
 	/* reset the terminal */
 	update_terminal_size();

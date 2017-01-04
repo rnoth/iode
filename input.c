@@ -9,7 +9,7 @@
  * Apply a modifier to the argument, to pass to commands.
  */
 void
-input_multiplier(char k, FILE *tty_fp)
+input_multiplier(char k)
 {
 	extern int multiplier;
 	extern char operators[];
@@ -18,7 +18,7 @@ input_multiplier(char k, FILE *tty_fp)
 		multiplier = multiplier * 10 + (k - '0');
 		sprintf(operators, "%d", multiplier);
 		update_status_line();
-		k = fgetc(tty_fp);
+		k = fgetc(stdin);
 	}
 
 	operators[0] = '\0';
@@ -32,9 +32,10 @@ input_multiplier(char k, FILE *tty_fp)
  * Main execution loop.
  */
 int
-input(FILE *tty_fp, int tty_fd)
+input()
 {
 	extern keybinding keybindings[];
+	extern int multiplier;
 
 	int mode = PAGER;
 	size_t i = 0;
@@ -43,16 +44,18 @@ input(FILE *tty_fp, int tty_fd)
 	/* main execution loop: get input char by char from the keyboard */
 	while (mode != EXIT_FAILURE && mode != EXIT_SUCCESS) {
 
-		k = fgetc(tty_fp);
+		k = fgetc(stdin);
 
 		if (mode == PAGER)
-			input_multiplier(k, tty_fp);
+			input_multiplier(k);
 
 		/* execute action associated with key */
 		for (i = 0; i < LENGTH(keybindings); i++) {
 			if (keybindings[i].keys[0] == k)
 				keybindings[i].action();
 		}
+
+		multiplier = 0;
 	}
 
 	return mode;

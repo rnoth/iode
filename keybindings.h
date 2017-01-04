@@ -14,7 +14,7 @@ struct keybinding keybindings[] = {
 
 	{ { 'f'          }, a_page_down      },
 	{ { CONTROL('F') }, a_page_down      },
-	{ { 'b'          }, a_page_down      },
+	{ { ' '          }, a_page_down      },
 
 	{ { 'u'          }, a_half_page_up   },
 	{ { CONTROL('U') }, a_half_page_up   },
