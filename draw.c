@@ -135,24 +135,10 @@ draw_status_line(void)
 
 
 /*
- * Draw the status line without changing the cursor position
- */
-void
-update_status_line(void)
-{
-	extern int rows;
-
-	fprintf(stderr, "\033[s\033[%d;0H", rows);
-	draw_status_line();
-	fputs("\033[u", stderr);
-}
-
-
-/*
  * Draw the full interface
  */
 void
-draw_screen()
+draw_screen(void)
 {
 	extern Line *l_top;
 	extern int   n_top, rows;
@@ -169,6 +155,20 @@ draw_screen()
 
 	draw_status_line();
 
+	fputs("\033[u", stderr);
+}
+
+
+/*
+ * Draw the status line without changing the cursor position
+ */
+void
+update_status_line(void)
+{
+	extern int rows;
+
+	fprintf(stderr, "\033[s\033[%d;0H", rows);
+	draw_status_line();
 	fputs("\033[u", stderr);
 }
 

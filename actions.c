@@ -5,167 +5,151 @@
 #include "main.h"
 
 
-/*
- * a->b:  buffer
- * a->m:  multiplier
- * a->r:  a->r
- * a->c:  a->c
- */
-
-
-int
+void
 a_quit()
 {
-	return EXIT_SUCCESS;
+	die("iode");
 }
 
 
-int
-a_redraw(Arg *a)
+void
+a_redraw(void)
 {
-	draw_screen(a->b, a->r, a->c);
-
-	return CONTINUE;
+	draw_screen();
 }
 
 
-int
-a_jump_begin(Arg *a)
+void
+a_jump_begin(void)
 {
-	a->b->top   = a->b->first;
-	a->b->top_l = 1;
+	extern int multiplier;
+	extern Line *l_top, *l_first;
 
-	while (a->b->top && a->b->top_l < a->m && a->b->top->next) {
-		a->b->top = a->b->top->next;
-		a->b->top_l++;
-	}
+	l_top = l_first;
+	n_top = 1;
 
-	draw_screen(a->b, a->r, a->c);
+	draw_screen();
 
-	return CONTINUE;
+	while (l_top && n_top < multiplier && l_top->next)
+		scroll_down();
 }
 
 
-int
-a_jump_end(Arg *a)
+void
+a_jump_end(void)
 {
-	a->b->top   = a->b->last;
-	a->b->top_l = a->b->total;
+	extern Line *l_top, *l_last;
+	extern int  n_top, n_total;
+	extern int  multiplier;
 
-	while (a->b->top
-		&& a->b->top->prev
-		&& a->b->total - a->b->top_l + 1
-			< (a->m ? a->m : a->r) - 1) {
+	l_top = l_last;
+	n_top = n_total;
 
-		a->b->top = a->b->top->prev;
-		a->b->top_l--;
-	}
+	draw_screen();
 
-	draw_screen(a->b, a->r, a->c);
-
-	return CONTINUE;
+	while (l_top && l_top->next && n_top < multiplier)
+		scroll_up();
 }
 
 
-int
-a_half_page_up(Arg *a)
+void
+a_half_page_up(void)
 {
+	extern int multiplier;
+
 	int i;
 
-	for (i = 0; i < (a->r - 1) / 2 * (a->m ? a->m : 1); i++)
-		scroll_up(a->b, a->r, a->c);
-
-	return CONTINUE;
+	for (i = 0; i < (rows - 1) / 2 * (multiplier ? multiplier : 1); i++)
+		scroll_up();
 }
 
 
-int
-a_half_page_down(Arg *a)
+void
+a_half_page_down(void)
 {
+	extern int multiplier;
+
 	int i;
 
-	for (i = 0; i < (a->r - 1) / 2 * (a->m ? a->m : 1); i++)
-		scroll_down(a->b, a->r, a->c);
-
-	return CONTINUE;
+	for (i = 0; i < (rows - 1) / 2 * (multiplier ? multiplier : 1); i++)
+		scroll_down();
 }
 
 
-int
-a_page_up(Arg *a)
+void
+a_page_up(void)
 {
+	extern int multiplier;
+
 	int i;
 
-	for (i = 0; i < (a->r - 2) * (a->m ? a->m : 1); i++)
-		scroll_up(a->b, a->r, a->c);
-
-	return CONTINUE;
+	for (i = 0; i < (rows - 2) * (multiplier ? multiplier : 1); i++)
+		scroll_up();
 }
 
 
-int
-a_page_down(Arg *a)
+void
+a_page_down(void)
 {
+	extern int multiplier;
+
 	int i;
 
-	for (i = 0; i < (a->r - 2) * (a->m ? a->m : 1); i++)
-		scroll_down(a->b, a->r, a->c);
-
-	return CONTINUE;
+	for (i = 0; i < (rows - 2) * (multiplier ? multiplier : 1); i++)
+		scroll_down();
 }
 
 
-int
-a_scroll_up(Arg *a)
+void
+a_scroll_up(void)
 {
+	extern int multiplier;
+
 	int i;
 
-	for (i = 0; i < (a->m ? a->m : 1); i++)
-		scroll_up(a->b, a->r, a->c);
-
-	return CONTINUE;
+	for (i = 0; i < (multiplier ? multiplier : 1); i++)
+		scroll_up();
 }
 
 
-int
-a_scroll_down(Arg *a)
+void
+a_scroll_down(void)
 {
+	extern int multiplier;
+
 	int i;
 
-	for (i = 0; i < (a->m ? a->m : 1); i++)
-		scroll_down(a->b, a->r, a->c);
-
-	return CONTINUE;
+	for (i = 0; i < (multiplier ? multiplier : 1); i++)
+		scroll_down();
 }
 
 
-int
-a_editor(Arg *a)
+void
+a_editor(void)
 {
+	extern char *filename;
+	extern FILE *file;
+	extern Line *l_top;
+	extern int   n_top;
+
 	char *editor = getenv("EDITOR"), command[MAX_LINE_SIZE];
-	char *filename = a->b->filename;
-	FILE *file     = a->b->file;
-	int   top_l    = a->b->top_l;
-	Line *top      = a->b->top;
 
 	if (!filename)
-		return CONTINUE;
+		return;
 
-	/* open filename with "$EDITOR" at line a->b->top_l */
+	/* open filename with "$EDITOR" at line n_top */
 	fputs("\033[?6c", stderr);
-	sprintf(command, "%s +%d %s", editor, a->b->top_l, filename);
+	sprintf(command, "%s +%d %s", editor, n_top, filename);
 	if (system(command))
-		return EXIT_FAILURE;
+		return;
 	fputs("\033[?12c", stderr);
 
 	/* read the file again to keep up with the changes */
-	buffer_free(a->b);
+	free_buffer(l_first);
 	fclose(file);
-	a->b        = buffer_read(filename);
-	a->b->top_l = top_l;
-	a->b->top   = top;
+	read_buffer(filename);
+	n_top  = n_top;
+	l_top  = l_top;
 
-	draw_screen(a->b, a->r, a->c);
-
-	return CONTINUE;
+	draw_screen();
 }

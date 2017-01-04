@@ -119,12 +119,14 @@ main(int argc, char *argv[])
 	draw_screen();
 	/*
 	for (; top > 1; top--)
-		scroll_down(buffer, w.ws_row, w.ws_col);
+		scroll_down(buffer, rows, cols);
 
 	input();
 	*/
 
-	/* resets the terminal to the previous state. */
+	/* reset the terminal */
+	update_terminal_size();
+	printf("\033[%d;0H\n", cols);
 	set_terminal(RESET);
 
 	fclose(file);
