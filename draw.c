@@ -166,6 +166,18 @@ update_status_line(void)
 
 
 /*
+ * Update onscreen cursor position to current cursor position.
+ */
+void
+update_cursor()
+{
+	extern int n_current, n_top;
+
+	fprintf(stderr, "\033[%d;%dH", n_current - (n_top - 1), 8 + 1);
+}
+
+
+/*
  * Draw the full interface
  */
 void
@@ -175,9 +187,10 @@ draw_screen(void)
 	extern int   n_top, rows;
 
 	struct line *l = l_top;
-	int   n = n_top, r = rows;
+	int n, r;
 
 	update_terminal_size();
+	n = n_top; r = rows;
 
 	fputs("\033[s\033[H", stderr);
 
@@ -187,6 +200,8 @@ draw_screen(void)
 	draw_status_line();
 
 	fputs("\033[u", stderr);
+
+	update_cursor();
 }
 
 
@@ -202,18 +217,6 @@ update_terminal_size(void)
 
 	rows = w.ws_row;
 	cols = w.ws_col;
-}
-
-
-/*
- * Update onscreen cursor position to current cursor position.
- */
-void
-update_cursor()
-{
-	extern int n_current, n_top;
-
-	fprintf(stderr, "\033[%d;%dH", n_current - (n_top - 1), 8 + 1);
 }
 
 
@@ -310,6 +313,7 @@ screen_focus_cursor()
 		scroll_down();
 
 	update_cursor();
+	update_line(l_current, n_current);
 }
 
 

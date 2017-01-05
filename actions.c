@@ -38,8 +38,13 @@ a_jump_begin(void)
 	extern struct line *l_current, *l_first;
 	extern int multiplier, n_current;
 
+	struct line *line = l_current;
+	int number = n_current;
+
 	l_current = l_first;
 	n_current = 1;
+
+	update_line(line, number);
 
 	while (n_current < multiplier && l_current->next) {
 		l_current = l_current->next;
@@ -56,8 +61,13 @@ a_jump_end(void)
 	extern struct line *l_current, *l_last;
 	extern int multiplier, n_current, n_total;
 
+	struct line *line = l_current;
+	int number = n_current;
+
 	l_current = l_last;
 	n_current = n_total;
+
+	update_line(line, number);
 
 	while (n_current > n_total - multiplier && l_current->prev) {
 		l_current = l_current->prev;
