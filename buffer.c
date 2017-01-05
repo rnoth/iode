@@ -8,10 +8,10 @@
 /*
  * Allocates and initialize a new line with the string content.
  */
-Line *
+struct line *
 new_line(char *s)
 {
-	Line *line = malloc(sizeof(Line));
+	struct line *line = malloc(sizeof(struct line));
 
 	line->text = malloc((strlen(s) + 1) * sizeof(char));
 	strcpy(line->text, s);
@@ -25,7 +25,7 @@ new_line(char *s)
 
 
 void
-link_lines(Line *prev, Line *next)
+link_lines(struct line *prev, struct line *next)
 {
 	if (prev)
 		prev->next = next;
@@ -40,7 +40,7 @@ link_lines(Line *prev, Line *next)
 void
 read_buffer(char* name)
 {
-	extern Line *l_current, *l_top, *l_first, *l_last;
+	extern struct line *l_current, *l_top, *l_first, *l_last;
 	extern int n_total;
 	extern char *filename;
 	extern FILE *file;
@@ -73,9 +73,9 @@ read_buffer(char* name)
  * Free the buffer and its lines, starting from the first one.
  */
 void
-free_buffer(Line *line)
+free_buffer(struct line *line)
 {
-	Line *next = NULL;
+	struct line *next = NULL;
 
 	for (; line; line = next) {
 		next = line->next;

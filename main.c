@@ -61,7 +61,7 @@ set_terminal(int mode)
 void
 die(const char *message)
 {
-	extern Line * l_first;
+	extern struct line * l_first;
 
 	perror(message);
 

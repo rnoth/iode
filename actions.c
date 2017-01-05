@@ -25,7 +25,7 @@ void
 a_jump_begin(void)
 {
 	extern int multiplier;
-	extern Line *l_top, *l_first;
+	extern struct line *l_top, *l_first;
 
 	l_top = l_first;
 	n_top = 1;
@@ -40,7 +40,7 @@ a_jump_begin(void)
 void
 a_jump_end(void)
 {
-	extern Line *l_top, *l_last;
+	extern struct line *l_top, *l_last;
 	extern int  n_top, n_total;
 	extern int  multiplier;
 
@@ -131,7 +131,7 @@ a_editor(void)
 {
 	extern char *filename;
 	extern FILE *file;
-	extern Line *l_top;
+	extern struct line *l_top;
 	extern int   n_top;
 
 	char *editor = getenv("EDITOR"), command[MAX_LINE_SIZE];

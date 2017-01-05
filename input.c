@@ -34,7 +34,7 @@ input_multiplier(char k, FILE *tty_fp)
 int
 input()
 {
-	extern keybinding keybindings[];
+	extern struct keybinding keybindings[];
 	extern int multiplier;
 	extern int mode;
 

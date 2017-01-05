@@ -23,19 +23,19 @@ enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE };
 
 /* datatypes */
 
-typedef struct Line {
+struct line {
 	char *text;
-	struct Line *prev, *next;
-} Line;
+	struct line *prev, *next;
+};
 
-typedef struct Cursor {
+struct cursor {
 	int l, c;  /* cursor position in line and columns */
-} Cursor;
+};
 
-typedef struct keybinding {
+struct keybinding {
 	char keys[MAX_KEYS];
 	void (*action)(void);
-} keybinding;
+};
 
 
 
@@ -50,7 +50,7 @@ int tty_fd;
 int rows, cols;
 
 /* buffer */
-Line *l_current, *l_top, *l_first, *l_last;
+struct line *l_current, *l_top, *l_first, *l_last;
 int n_total, n_top;
 char *filename;
 FILE *file;
@@ -63,12 +63,12 @@ void die(const char *);
 int  set_flag(char, int);
 
 /* buffer */
-void     read_buffer(char *filename);
-Line   * new_line(char *s);
-void     free_buffer(Line *);
+struct line * new_line(char *s);
+void read_buffer(char *filename);
+void free_buffer(struct line *);
 
 /* draw */
-void draw_line(Line *, int);
+void draw_line(struct line *, int);
 void draw_screen(void);
 void update_status_line(void);
 void update_terminal_size(void);

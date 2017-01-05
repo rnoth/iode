@@ -88,7 +88,7 @@ draw_char(char **character, char **text, int col)
  * Draw a full line up to the width of the screen.
  */
 void
-draw_line(Line *line, int number)
+draw_line(struct line *line, int number)
 {
 	extern int cols;
 
@@ -145,10 +145,10 @@ draw_status_line(void)
 void
 draw_screen(void)
 {
-	extern Line *l_top;
+	extern struct line *l_top;
 	extern int   n_top, rows;
 
-	Line *l = l_top;
+	struct line *l = l_top;
 	int   n = n_top, r = rows;
 
 	update_terminal_size();
@@ -200,7 +200,7 @@ update_terminal_size(void)
 void
 scroll_up(void)
 {
-	extern Line *l_top;
+	extern struct line *l_top;
 	extern int rows, cols;
 
 	if (!l_top || !l_top->prev)
@@ -222,11 +222,11 @@ scroll_up(void)
 void
 scroll_down(void)
 {
-	extern Line *l_top;
+	extern struct line *l_top;
 	extern int rows;
 
 	int i;
-	Line *line = l_top;
+	struct line *line = l_top;
 
 	for (i = 0; i < rows - 1 && line; i++, line = line->next);
 
