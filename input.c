@@ -8,12 +8,13 @@
 /*
  * Apply a modifier to the argument, to pass to commands.
  */
-void
-input_multiplier(char k, FILE *tty_fp)
+char
+get_multiplier(char k, FILE *tty_fp)
 {
 	extern int multiplier;
 	extern char operators[];
 
+	multiplier = 0;
 	while (k >= '0' && k <= '9' && multiplier < 1000) {
 		multiplier = multiplier * 10 + (k - '0');
 		sprintf(operators, "%d", multiplier);
@@ -23,6 +24,8 @@ input_multiplier(char k, FILE *tty_fp)
 
 	operators[0] = '\0';
 	update_status_line();
+
+	return k;
 }
 
 
@@ -35,8 +38,7 @@ int
 input()
 {
 	extern struct keybinding keybindings[];
-	extern int multiplier;
-	extern int mode;
+	extern int multiplier, mode;
 
 	size_t i = 0;
 	char k;
@@ -49,15 +51,13 @@ input()
 		k = fgetc(tty_fp);
 
 		if (mode == PAGER)
-			input_multiplier(k, tty_fp);
+			k = get_multiplier(k, tty_fp);
 
 		/* execute action associated with key */
 		for (i = 0; i < LENGTH(keybindings); i++) {
 			if (keybindings[i].keys[0] == k)
 				keybindings[i].action();
 		}
-
-		multiplier = 0;
 	}
 
 	return mode;

@@ -41,15 +41,15 @@ void
 a_jump_end(void)
 {
 	extern struct line *l_top, *l_last;
-	extern int  n_top, n_total;
-	extern int  multiplier;
+	extern int n_top, n_total;
+	extern int multiplier;
 
 	l_top = l_last;
 	n_top = n_total;
 
 	draw_screen();
 
-	while (l_top && l_top->next && n_top < multiplier)
+	while (l_top && l_top->prev && n_top > n_total - multiplier + 1)
 		scroll_up();
 }
 
