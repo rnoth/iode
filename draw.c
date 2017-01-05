@@ -218,6 +218,30 @@ update_cursor()
 
 
 /*
+ * Move cursor until it fits inside the screen.
+ */
+void
+follow()
+{
+	extern int n_top, n_current;
+
+	/* move cursor if it is above the screen */
+	while (n_current < n_top) {
+		l_current = l_current->next;
+		n_current++;
+	}
+
+	/* move cursor if it is under the screen */
+	while (n_current > n_top + rows - 2) {
+		l_current = l_current->prev;
+		n_current--;
+	}
+
+	update_line(l_current, n_current);
+}
+
+
+/*
  * Scroll up one line using escape sequences, print the new line, then print
  * the status line.
  */
@@ -238,6 +262,7 @@ scroll_up(void)
 	draw_status_line();
 	fputs("\033[u", stderr);
 
+	follow();
 	update_cursor();
 }
 
@@ -269,6 +294,7 @@ scroll_down(void)
 
 	fputs("\033[u", stderr);
 
+	follow();
 	update_cursor();
 }
 
