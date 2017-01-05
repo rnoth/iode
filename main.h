@@ -52,7 +52,7 @@ int rows, cols;
 
 /* buffer */
 struct line *l_current, *l_top, *l_first, *l_last;
-int n_total, n_top;
+int n_total, n_current, n_top;
 char *filename;
 FILE *file;
 
@@ -75,9 +75,14 @@ void update_status_line(void);
 void update_terminal_size(void);
 void scroll_up(void);
 void scroll_down(void);
+void update_cursor(void);
 
 /* input */
 int  input(void);
+
+/* edit */
+void cursor_up();
+void cursor_down();
 
 /* actions */
 void a_quit(void);
@@ -90,4 +95,6 @@ void a_page_up(void);
 void a_page_down(void);
 void a_scroll_up(void);
 void a_scroll_down(void);
+void a_cursor_up(void);
+void a_cursor_down(void);
 void a_editor(void);

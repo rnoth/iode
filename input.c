@@ -1,3 +1,17 @@
+/*
+ * Main execution loop.
+ *
+ * Getting one char at the time from the user input and calling appropriate
+ * function according to the input.
+ *
+ * The functions called are in keybindings[] in keybindings.h, and the
+ * function possible to call are in actions.c.
+ *
+ * The input() relies on other functions to fully cover a vi-like modal
+ * input and edit style.
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 

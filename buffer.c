@@ -41,14 +41,15 @@ void
 read_buffer(char* name)
 {
 	extern struct line *l_current, *l_top, *l_first, *l_last;
-	extern int n_total;
+	extern int n_total, n_current, n_top;
 	extern char *filename;
 	extern FILE *file;
 
 	char s[MAX_LINE_SIZE];
 
 	/* init empty buffer */
-	l_first = l_last = l_current = l_top = NULL;
+	l_current = l_top = l_first = l_last = NULL;
+	n_current = n_top = 1;
 	filename = name;
 
 	/* open file or stdin */

@@ -79,6 +79,7 @@ draw_char(char **character, char **text, int col)
 void
 draw_line(struct line *line, int number)
 {
+	extern struct line *l_current;
 	extern int cols;
 
 	int col = 0;
@@ -88,11 +89,12 @@ draw_line(struct line *line, int number)
 	char *c = NULL, *text = NULL;
 
 	if (!line) {
-		fputs("      \033[1;30m.\033[m\033[K\n", stderr);
+		fputs("\r      \033[1;30m.\033[m\033[K\n", stderr);
 		return;
 	}
 
-	fprintf(stderr, "\033[K\033[1;30m%7d\033[m ", number);
+	fprintf(stderr, line == l_current ?  "\r\033[K\033[1m%7d\033[m " :
+		"\r\033[K\033[1;30m%7d\033[m ", number);
 	col += 8;
 
 	/* draw chars until the screen is filled or end of string */
@@ -116,6 +118,27 @@ draw_line(struct line *line, int number)
 }
 
 
+/*
+ * Update one line without changing the cursor.
+ */
+void
+update_line(struct line *line, int number)
+{
+	extern int n_top, rows;
+
+	/* line is outside of the screen */
+	if (number - (n_top - 1) > rows)
+		return;
+
+	fprintf(stderr, "\033[s\033[%d;0H", number - (n_top - 1));
+	draw_line(line, number);
+	fputs("\033[u", stderr);
+}
+
+
+/*
+ * Draw the status line using current editor state.
+ */
 void
 draw_status_line(void)
 {
@@ -125,6 +148,20 @@ draw_status_line(void)
 	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d - %s\033[m",
 		cols - 20 - (int) strlen(operators),
 		operators, n_total, filename);
+}
+
+
+/*
+ * Draw the status line without changing the cursor position
+ */
+void
+update_status_line(void)
+{
+	extern int rows;
+
+	fprintf(stderr, "\033[s\033[%d;0H", rows);
+	draw_status_line();
+	fputs("\033[u", stderr);
 }
 
 
@@ -153,20 +190,6 @@ draw_screen(void)
 }
 
 
-/*
- * Draw the status line without changing the cursor position
- */
-void
-update_status_line(void)
-{
-	extern int rows;
-
-	fprintf(stderr, "\033[s\033[%d;0H", rows);
-	draw_status_line();
-	fputs("\033[u", stderr);
-}
-
-
 void
 update_terminal_size(void)
 {
@@ -179,6 +202,18 @@ update_terminal_size(void)
 
 	rows = w.ws_row;
 	cols = w.ws_col;
+}
+
+
+/*
+ * Update onscreen cursor position to current cursor position.
+ */
+void
+update_cursor()
+{
+	extern int n_current, n_top;
+
+	fprintf(stderr, "\033[%d;%dH", n_current - (n_top - 1), 8 + 1);
 }
 
 
@@ -202,6 +237,8 @@ scroll_up(void)
 	fprintf(stderr, "\033[%d;0H", rows);
 	draw_status_line();
 	fputs("\033[u", stderr);
+
+	update_cursor();
 }
 
 
@@ -231,4 +268,65 @@ scroll_down(void)
 	draw_status_line();
 
 	fputs("\033[u", stderr);
+
+	update_cursor();
+}
+
+
+/*
+ * Move n_top and l_top to make the cursor fit inside the visible region.
+ */
+void
+focus()
+{
+	extern int n_top, n_current;
+
+	/* reach cursor if it is above the screen */
+	while (n_current < n_top)
+		scroll_up();
+
+	/* reach cursor if it is under the screen */
+	while (n_current > n_top + rows - 2)
+		scroll_down();
+}
+
+
+/*
+ * Move cursor up one line, and update the screen accordingly if needed.
+ */
+void
+cursor_up(void)
+{
+	extern struct line *l_current;
+	extern int n_current;
+
+	if (!l_current->prev)
+		return;
+
+	l_current = l_current->prev;
+	n_current--;
+
+	focus();
+	update_line(l_current, n_current);
+	update_line(l_current->next, n_current + 1);
+	update_cursor();
+}
+
+
+void
+cursor_down(void)
+{
+	extern struct line *l_current;
+	extern int n_current;
+
+	if (!l_current->next)
+		return;
+
+	l_current = l_current->next;
+	n_current++;
+
+	focus();
+	update_line(l_current->prev, n_current - 1);
+	update_line(l_current, n_current);
+	update_cursor();
 }

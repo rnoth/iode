@@ -22,12 +22,13 @@ struct keybinding keybindings[] = {
 	{ { 'd'          }, a_half_page_down },
 	{ { CONTROL('D') }, a_half_page_down },
 
-	{ { 'k'          }, a_scroll_up      },
 	{ { CONTROL('Y') }, a_scroll_up      },
 
-	{ { 'j'          }, a_scroll_down    },
 	{ { CONTROL('J') }, a_scroll_down    },
 	{ { CONTROL('E') }, a_scroll_down    },
+
+	{ { 'k'          }, a_cursor_up      },
+	{ { 'j'          }, a_cursor_down    },
 
 	{ { 'v'          }, a_editor         },
 };

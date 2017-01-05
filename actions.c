@@ -1,3 +1,14 @@
+/*
+ * Functions called on demand of the user.
+ *
+ * They are called from input() in "input.c" while the user input the
+ * apropriate key sequence.
+ *
+ * The mapping between key sequences and actions is done with keybindings[]
+ * in "keybindings.h".
+ */
+
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -123,6 +134,30 @@ a_scroll_down(void)
 
 	for (i = 0; i < (multiplier ? multiplier : 1); i++)
 		scroll_down();
+}
+
+
+void
+a_cursor_down(void)
+{
+	extern int multiplier;
+
+	int i;
+
+	for (i = 0; i < (multiplier ? multiplier : 1); i++)
+		cursor_down();
+}
+
+
+void
+a_cursor_up(void)
+{
+	extern int multiplier;
+
+	int i;
+
+	for (i = 0; i < (multiplier ? multiplier : 1); i++)
+		cursor_up();
 }
 
 

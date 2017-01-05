@@ -124,7 +124,7 @@ main(int argc, char *argv[])
 	set_terminal(RAW);
 
 	update_terminal_size();
-	fprintf(stderr, "\033[%d;0H\n", cols);
+	fputs("\033[0;0H", stderr);
 	draw_screen();
 
 	input();
