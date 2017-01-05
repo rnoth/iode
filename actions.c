@@ -35,33 +35,36 @@ a_redraw(void)
 void
 a_jump_begin(void)
 {
-	extern int multiplier;
-	extern struct line *l_top, *l_first;
+	extern struct line *l_current, *l_first;
+	extern int multiplier, n_current;
 
-	l_top = l_first;
-	n_top = 1;
+	l_current = l_first;
+	n_current = 1;
 
-	draw_screen();
+	while (n_current < multiplier && l_current->next) {
+		l_current = l_current->next;
+		n_current++;
+	}
 
-	while (l_top && n_top < multiplier && l_top->next)
-		scroll_down();
+	screen_focus_cursor();
 }
 
 
 void
 a_jump_end(void)
 {
-	extern struct line *l_top, *l_last;
-	extern int n_top, n_total;
-	extern int multiplier;
+	extern struct line *l_current, *l_last;
+	extern int multiplier, n_current, n_total;
 
-	l_top = l_last;
-	n_top = n_total;
+	l_current = l_last;
+	n_current = n_total;
 
-	draw_screen();
+	while (n_current > n_total - multiplier && l_current->prev) {
+		l_current = l_current->prev;
+		n_current--;
+	}
 
-	while (l_top && l_top->prev && n_top > n_total - multiplier + 1)
-		scroll_up();
+	screen_focus_cursor();
 }
 
 
@@ -74,6 +77,8 @@ a_half_page_up(void)
 
 	for (i = 0; i < (rows - 1) / 2 * (multiplier ? multiplier : 1); i++)
 		scroll_up();
+
+	cursor_follow_screen();
 }
 
 
@@ -86,6 +91,8 @@ a_half_page_down(void)
 
 	for (i = 0; i < (rows - 1) / 2 * (multiplier ? multiplier : 1); i++)
 		scroll_down();
+
+	cursor_follow_screen();
 }
 
 
@@ -98,6 +105,8 @@ a_page_up(void)
 
 	for (i = 0; i < (rows - 2) * (multiplier ? multiplier : 1); i++)
 		scroll_up();
+
+	cursor_follow_screen();
 }
 
 
@@ -110,6 +119,8 @@ a_page_down(void)
 
 	for (i = 0; i < (rows - 2) * (multiplier ? multiplier : 1); i++)
 		scroll_down();
+
+	cursor_follow_screen();
 }
 
 
@@ -122,6 +133,8 @@ a_scroll_up(void)
 
 	for (i = 0; i < (multiplier ? multiplier : 1); i++)
 		scroll_up();
+
+	cursor_follow_screen();
 }
 
 
@@ -134,6 +147,8 @@ a_scroll_down(void)
 
 	for (i = 0; i < (multiplier ? multiplier : 1); i++)
 		scroll_down();
+
+	cursor_follow_screen();
 }
 
 
@@ -146,6 +161,8 @@ a_cursor_down(void)
 
 	for (i = 0; i < (multiplier ? multiplier : 1); i++)
 		cursor_down();
+
+	screen_focus_cursor();
 }
 
 
@@ -158,6 +175,8 @@ a_cursor_up(void)
 
 	for (i = 0; i < (multiplier ? multiplier : 1); i++)
 		cursor_up();
+
+	screen_focus_cursor();
 }
 
 
@@ -166,7 +185,6 @@ a_editor(void)
 {
 	extern char *filename;
 	extern FILE *file;
-	extern struct line *l_top;
 	extern int   n_top;
 
 	char *editor = getenv("EDITOR"), command[MAX_LINE_SIZE];

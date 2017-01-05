@@ -221,8 +221,9 @@ update_cursor()
  * Move cursor until it fits inside the screen.
  */
 void
-follow()
+cursor_follow_screen()
 {
+	extern struct line *l_current;
 	extern int n_top, n_current;
 
 	/* move cursor if it is above the screen */
@@ -238,6 +239,7 @@ follow()
 	}
 
 	update_line(l_current, n_current);
+	update_cursor();
 }
 
 
@@ -261,9 +263,6 @@ scroll_up(void)
 	fprintf(stderr, "\033[%d;0H", rows);
 	draw_status_line();
 	fputs("\033[u", stderr);
-
-	follow();
-	update_cursor();
 }
 
 
@@ -289,13 +288,8 @@ scroll_down(void)
 
 	fprintf(stderr, "\033[s\033[%d;0H", rows);
 	draw_line(line, n_top + rows - 2);
-
 	draw_status_line();
-
 	fputs("\033[u", stderr);
-
-	follow();
-	update_cursor();
 }
 
 
@@ -303,9 +297,9 @@ scroll_down(void)
  * Move n_top and l_top to make the cursor fit inside the visible region.
  */
 void
-focus()
+screen_focus_cursor()
 {
-	extern int n_top, n_current;
+	extern int n_top, n_current, rows;
 
 	/* reach cursor if it is above the screen */
 	while (n_current < n_top)
@@ -314,6 +308,8 @@ focus()
 	/* reach cursor if it is under the screen */
 	while (n_current > n_top + rows - 2)
 		scroll_down();
+
+	update_cursor();
 }
 
 
@@ -332,7 +328,7 @@ cursor_up(void)
 	l_current = l_current->prev;
 	n_current--;
 
-	focus();
+	screen_focus_cursor();
 	update_line(l_current, n_current);
 	update_line(l_current->next, n_current + 1);
 	update_cursor();
@@ -351,7 +347,7 @@ cursor_down(void)
 	l_current = l_current->next;
 	n_current++;
 
-	focus();
+	screen_focus_cursor();
 	update_line(l_current->prev, n_current - 1);
 	update_line(l_current, n_current);
 	update_cursor();
