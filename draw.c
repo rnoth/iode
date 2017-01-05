@@ -60,9 +60,9 @@ draw_char(char **character, char **text, int col)
 			c[i] = '\0';
 			width = 1;
 		} else {
-			sprintf(c, "\033[36;1m\\%02x\033[m",
+			sprintf(c, "\033[36;1m%02x\033[m",
 				(unsigned char) t[i]);
-			width = 3;
+			width = 2;
 			i = 1;
 		}
 	}
