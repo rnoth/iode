@@ -27,6 +27,7 @@ draw_char(char **character, char **text, int col)
 	int i     = 0;  /* how many chars did we read to render one character */
 	int width = 0;  /* how much screen width is this character taking */
 	char *c = *character, *t = *text;
+	int u = 0;
 
 	if (ISASCII(t[0])) {
 
@@ -35,47 +36,35 @@ draw_char(char **character, char **text, int col)
 			width = 1;
 			i = 1;
 
-		/* mandoc adds '^H' between each heading characters */
-		} else if ((t[0] == CONTROL('H'))) {
-			c[0] = '\033'; c[1] = '['; c[2] = '1'; c[3] = 'm';
-			c[4] = t[0]; c[5] = t[1];
-			c[6] = '\033'; c[7] = '['; c[8] = '0'; c[9] = 'm';
-			c[10] = '\0';
-			width = 0;
-			i = 2;
-
 		/* tab */
 		} else if (t[0] == '\t') {
 			c[0] = '\t'; c[1] = '\0';
 			width = 8 - (col % 8);
 			i = 1;
 
-		/* escape codes */
-		} else if ((t[0] == '\033')) {
-			for (i = 0; t[i] && !isalpha(t[i]); i++)
-				c[i] = t[i];
-			c[i] = '\0';
-			/* next char is the alpha that ends escape code */
-			width = -1;
-
 		/* control characters */
 		} else if (iscntrl(t[0])) {
-			sprintf(c, "\033[1;30m^%c\033[m", t[0] + '@');
+			sprintf(c, "\033[36;1m^%c\033[m", t[0] + '@');
 			width = 2;
-			i = 1;
-
-		/* unknown */
-		} else {
-			sprintf(c, "\033[1;30m?\033[m");
-			width = 1;
 			i = 1;
 		}
 
 	} else {
-		for (i = 0; t[i] && ISUTF8(t[i]); i++)
-			c[i] = t[i];
-		c[i] = '\0';
-		width = 1;
+		/* unicode parsing */
+		for (u = 0; (t[i] & (1 << (7 - u))) && u < 7; u++)
+			;
+
+		if (u < 4) {
+			for (; u > 0; u--, i++)
+				c[i] = t[i];
+			c[i] = '\0';
+			width = 1;
+		} else {
+			sprintf(c, "\033[36;1m\\%02x\033[m",
+				(unsigned char) t[i]);
+			width = 3;
+			i = 1;
+		}
 	}
 
 	*character = c;

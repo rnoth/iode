@@ -41,6 +41,7 @@ struct keybinding {
 
 /* variables */
 
+/* mode state */
 char operators[MAX_LINE_SIZE];
 int flags[128];  /* command line and interactive options */
 int multiplier, mode;
