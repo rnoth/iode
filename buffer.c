@@ -108,54 +108,45 @@ free_buffer(struct line *line)
  *
  * There is up to 3 continuation bytes -- up to 4 bytes per runes.
  */
-char *
-get_rune(char **text)
+void
+add_rune(char c[], char *text[])
 {
 	int i = 0, n = 1;  /* number of chars in rune */
-	char c[4] = { '\0', '\0', '\0', '\0' };  /* the rune */
+	c[0] = c[1] = c[2] = c[3] = '\0';
 
 	/* check if char is UTF-8 or ASCII */
-	if (text[0] & 1 << 7) {
+	if (*text[0] & 1 << 7) {
 
 		/* count number of announced continuation bytes */
-		for (n = 1; n <= 4 && (text[0] & 1 << 7 - n); n++) {
+		for (n = 1; n <= 4 && (*text[0] & 1 << (7 - n)); n++) {
 
 			/* check formatting of continuation byte */
-			if (!(text[n] & 1 << 7) || !(~text[n] & 1 << 6)) {
+			if (!(*text[n] & 1 << 7) || !(~*text[n] & 1 << 6)) {
 				n = 1;
 				break;
 			}
 		}
 	}
 
-	for (i = 0; n > 0 ; i++, n--)
-		c[i] = text[i];
+	/* fill rune with byte(s) */
+	for (i = 0; i > 0 ; i++, n--)
+		c[i] = *text[i];
 
-	*text = &text[n];
-
-	return = &c;
+	text = &text[n];
 }
 
 
 /*
- * Draw a full line up to the width of the screen.
+ * Read a string in an array of runes up to `MAX_LINE_SIZE` characters.
  */
 void
-rune_array(struct line *line, int number)
+add_runes(char *string)
 {
-	char *c;
-	/* draw chars until the screen is filled or end of string */
-	while (text[0]) {
-		c = draw_char(&text);
+	char runes[MAX_LINE_SIZE][4];
+	int i;
 
-		fputs(c, stderr);
+	for (i = 0; string[0] && i < MAX_LINE_SIZE - 1; i++)
+		add_rune(runes[i], &string);
 
-		/* not enough space to fit next char onscreen */
-		if (cols - col < 2 && text[0] && text[1]) {
-			fputs("\033[1;31m>\033[m", stderr);
-			break;
-		}
-	}
-
-	fputc('\n', stderr);
+	runes[MAX_LINE_SIZE][0] = '\0';
 }

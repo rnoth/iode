@@ -32,6 +32,7 @@ draw_char(char **character, char **text, int col)
 	if (ISASCII(t[0])) {
 
 		if (isprint(t[0])) {
+			c[0] = t[0]; c[1] = '\0';
 			width = 1;
 			i = 1;
 
@@ -314,45 +315,4 @@ screen_focus_cursor()
 
 	update_cursor();
 	update_line(l_current, n_current);
-}
-
-
-/*
- * Move cursor up one line, and update the screen accordingly if needed.
- */
-void
-cursor_up(void)
-{
-	extern struct line *l_current;
-	extern int n_current;
-
-	if (!l_current || !l_current->prev)
-		return;
-
-	l_current = l_current->prev;
-	n_current--;
-
-	screen_focus_cursor();
-	update_line(l_current, n_current);
-	update_line(l_current->next, n_current + 1);
-	update_cursor();
-}
-
-
-void
-cursor_down(void)
-{
-	extern struct line *l_current;
-	extern int n_current;
-
-	if (!l_current || !l_current->next)
-		return;
-
-	l_current = l_current->next;
-	n_current++;
-
-	screen_focus_cursor();
-	update_line(l_current->prev, n_current - 1);
-	update_line(l_current, n_current);
-	update_cursor();
 }
