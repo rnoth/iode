@@ -35,6 +35,70 @@ link_lines(struct line *prev, struct line *next)
 
 
 /*
+ * Shift `text` pointer to next rune then return an array of 4 chars max
+ * corresponding to the UTF-8 or ASCII character, or a single char if is none
+ * of these both.
+ *
+ * ASCII all have a leading '0' byte:
+ *
+ *  0xxxxxxx
+ *
+ * UTF-8 have one leading '1' and as many following '1' as there are
+ * continuation bytes which have a leading '1' and a following '0':
+ *
+ *  110xxxxx 10xxxxxx
+ *  1110xxxx 10xxxxxx 10xxxxxx
+ *  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+ *
+ * There is up to 3 continuation bytes -- up to 4 bytes per runes.
+ */
+char *
+add_rune(char rune[], char text[])
+{
+	int i = 0, n = 1;  /* number of chars in rune */
+	rune[0] = rune[1] = rune[2] = rune[3] = rune[4] = '\0';
+
+	/* check if char is UTF-8 or ASCII */
+	if (text[0] & 1 << 7) {
+
+		/* count number of announced continuation bytes */
+		for (n = 1; n <= 4 && (text[0] & 1 << (7 - n)); n++) {
+
+			/* check formatting of continuation byte */
+			if (!(text[n] & 1 << 7) || !(~text[n] & 1 << 6)) {
+				n = 1;
+				break;
+			}
+		}
+	}
+
+	/* fill rune with byte(s) */
+	for (i = 0; i < n ; i++)
+		rune[i] = text[i];
+
+	return text + sizeof(char);
+}
+
+
+/*
+ * Read a string in an array of runes up to `MAX_LINE_SIZE` characters.
+ */
+void
+to_runes(char *s)
+{
+	char runes[MAX_LINE_SIZE][5];
+	int i;
+
+	for (i = 0; s[0] && i < MAX_LINE_SIZE - 1; i++) {
+		s = add_rune(runes[i], s);
+		fprintf(stderr, "%s", runes[i]);
+	}
+
+	runes[MAX_LINE_SIZE][0] = '\0';
+}
+
+
+/*
  * Read the file in a doubly linked list of lines.
  */
 void
@@ -64,6 +128,7 @@ read_buffer(char* name)
 		link_lines(l_last, l_current);
 		l_last = l_current;
 		l_first = l_first ? l_first : l_current;
+		to_runes(s);
 	}
 
 	l_top = l_current = l_first;
@@ -87,66 +152,4 @@ free_buffer(struct line *line)
 		free(line);
 		line = NULL;
 	}
-}
-
-
-/*
- * Shift `text` pointer to next rune then return an array of 4 chars max
- * corresponding to the UTF-8 or ASCII character, or a single char if is none
- * of these both.
- *
- * ASCII all have a leading '0' byte:
- *
- *  0xxxxxxx
- *
- * UTF-8 have one leading '1' and as many following '1' as there are
- * continuation bytes which have a leading '1' and a following '0':
- *
- *  110xxxxx 10xxxxxx
- *  1110xxxx 10xxxxxx 10xxxxxx
- *  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
- *
- * There is up to 3 continuation bytes -- up to 4 bytes per runes.
- */
-void
-add_rune(char c[], char *text[])
-{
-	int i = 0, n = 1;  /* number of chars in rune */
-	c[0] = c[1] = c[2] = c[3] = '\0';
-
-	/* check if char is UTF-8 or ASCII */
-	if (*text[0] & 1 << 7) {
-
-		/* count number of announced continuation bytes */
-		for (n = 1; n <= 4 && (*text[0] & 1 << (7 - n)); n++) {
-
-			/* check formatting of continuation byte */
-			if (!(*text[n] & 1 << 7) || !(~*text[n] & 1 << 6)) {
-				n = 1;
-				break;
-			}
-		}
-	}
-
-	/* fill rune with byte(s) */
-	for (i = 0; i > 0 ; i++, n--)
-		c[i] = *text[i];
-
-	text = &text[n];
-}
-
-
-/*
- * Read a string in an array of runes up to `MAX_LINE_SIZE` characters.
- */
-void
-add_runes(char *string)
-{
-	char runes[MAX_LINE_SIZE][4];
-	int i;
-
-	for (i = 0; string[0] && i < MAX_LINE_SIZE - 1; i++)
-		add_rune(runes[i], &string);
-
-	runes[MAX_LINE_SIZE][0] = '\0';
 }

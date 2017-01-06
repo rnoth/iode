@@ -126,9 +126,9 @@ main(int argc, char *argv[])
 
 	update_terminal_size();
 	fputs("\033[0;0H", stderr);
-	draw_screen();
+	/*draw_screen();*/
 
-	input();
+	/*input();*/
 
 	/* reset the terminal */
 	update_terminal_size();
