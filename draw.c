@@ -16,60 +16,24 @@
 
 
 /*
- * Set `c` content to a representation of the first character of `text`, then it
- * shifts `text` pointer to next char.
- *
- * Return: onscreen width of the char while printed.
  */
 int
-draw_char(char **character, char **text, int col)
+draw_rune(char *string, char rune[4], int col)
 {
-	int i     = 0;  /* how many chars did we read to render one character */
-	int width = 0;  /* how much screen width is this character taking */
-	char *c = *character, *t = *text;
-	int u = 0;
+	if (iscntrl(rune[0])) {
+		sprintf(string, "\033[36;1m^%s\033[m", "!");  /* TODO */
+		return 2;
+	} else if (ISASCII(rune[0]) || rune[1]) {
+		strncat(string, rune, 4);
 
-	if (ISASCII(t[0])) {
-
-		if (isprint(t[0])) {
-			c[0] = t[0]; c[1] = '\0';
-			width = 1;
-			i = 1;
-
-		/* tab */
-		} else if (t[0] == '\t') {
-			c[0] = '\t'; c[1] = '\0';
-			width = 8 - (col % 8);
-			i = 1;
-
-		/* control characters */
-		} else if (iscntrl(t[0])) {
-			sprintf(c, "\033[36;1m^%c\033[m", t[0] + '@');
-			width = 2;
-			i = 1;
-		}
-
-	} else {
-		/* unicode parsing */
-		for (u = 0; (t[i] & (1 << (7 - u))) && u < 7; u++)
-			;
-
-		if (u < 4) {
-			for (; u > 0; u--, i++)
-				c[i] = t[i];
-			c[i] = '\0';
-			width = 1;
-		} else {
-			sprintf(c, "\033[36;1m%02x\033[m",
-				(unsigned char) t[i]);
-			width = 2;
-			i = 1;
-		}
+		if (rune[0] == '\t')
+			return 8 - (col % 8);
+		return 1;
 	}
 
-	*character = c;
-	*text = &t[i];
-	return width;
+	/* unknown */
+	sprintf(string, "\033[36m%02x\033[m", (unsigned char) rune[0]);
+	return 2;
 }
 
 
@@ -82,39 +46,35 @@ draw_line(struct line *line, int number)
 	extern struct line *l_current;
 	extern int cols;
 
-	int col = 0;
-	/*                4 max size for UTF-8
-	 *               11 "\033[1;3%sm" and "\033[m"
-	 *                1 null byte */
-	char *c = NULL, *text = NULL;
+	/* 18 is length of "\033[3?m????\033[m" */
+	char string[18 * MAX_LINE_SIZE + 1] = "";
+	int i, col = 8;
 
 	if (!line) {
 		fputs("\r      \033[1;30m.\033[m\033[K\n", stderr);
 		return;
 	}
 
-	fprintf(stderr, line == l_current ?  "\r\033[K\033[1m%7d\033[m " :
-		"\r\033[K\033[1;30m%7d\033[m ", number);
-	col += 8;
-
-	/* draw chars until the screen is filled or end of string */
-	c    = malloc(16 * sizeof(char));
-	text = line->text;
-	for (; text[0] && cols - col > 0;) {
-		col += draw_char(&c, &text, col);
-
-		fputs(c, stderr);
+	/* add chars to print until the screen is filled or end of string */
+	for (i = 0; line->text[i][0] && cols - col > 0; i++) {
+		col += draw_rune(string, line->text[i], col);
 
 		/* not enough space to fit next char onscreen */
-		if (cols - col < 2 && text[0] && text[1]) {
-			fputs("\033[1;31m>\033[m", stderr);
+		if (cols < col + 2 && line->text[0][0] && line->text[1][0]) {
+			strcat(string, "\033[1;31m>\033[m");
 			break;
 		}
 	}
 
-	fputc('\n', stderr);
+	fprintf(
+		stderr,
+		line == l_current ?
+		"\r\033[K\033[1m"    "%7d\033[m %s" :
+		"\r\033[K\033[1;30m" "%7d\033[m %s",
+		number, string
+	);
 
-	free(c);
+	fputc('\n', stderr);
 }
 
 

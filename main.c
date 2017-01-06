@@ -122,17 +122,17 @@ main(int argc, char *argv[])
 
 	read_buffer(filename);
 
-	/*set_terminal(RAW);*/
+	set_terminal(RAW);
 
-	/*update_terminal_size();*/
-	/*fputs("\033[0;0H", stderr);*/
-	/*draw_screen();*/
+	update_terminal_size();
+	fputs("\033[0;0H", stderr);
+	draw_screen();
 
 	/*input();*/
 
 	/* reset the terminal */
 	/*update_terminal_size();*/
-	/*fprintf(stderr, "\033[%d;0H\n", cols);*/
+	fprintf(stderr, "\033[%d;0H\n", cols);
 	set_terminal(RESET);
 
 	fclose(file);

@@ -24,7 +24,7 @@ enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE };
 /* datatypes */
 
 struct line {
-	char *text;
+	char text[MAX_LINE_SIZE][4];
 	struct line *prev, *next;
 };
 
