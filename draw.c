@@ -302,14 +302,15 @@ scroll_down(void)
 void
 screen_focus_cursor()
 {
+	extern struct line *l_current;
 	extern int n_top, n_current, rows;
 
 	/* reach cursor if it is above the screen */
-	while (n_current < n_top)
+	while (l_current && n_current < n_top)
 		scroll_up();
 
 	/* reach cursor if it is under the screen */
-	while (n_current > n_top + rows - 2)
+	while (l_current && n_current > n_top + rows - 2)
 		scroll_down();
 
 	update_cursor();
@@ -326,7 +327,7 @@ cursor_up(void)
 	extern struct line *l_current;
 	extern int n_current;
 
-	if (!l_current->prev)
+	if (!l_current || !l_current->prev)
 		return;
 
 	l_current = l_current->prev;
@@ -345,7 +346,7 @@ cursor_down(void)
 	extern struct line *l_current;
 	extern int n_current;
 
-	if (!l_current->next)
+	if (!l_current || !l_current->next)
 		return;
 
 	l_current = l_current->next;
