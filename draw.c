@@ -32,7 +32,6 @@ draw_char(char **character, char **text, int col)
 	if (ISASCII(t[0])) {
 
 		if (isprint(t[0])) {
-			c[0] = t[0]; c[1] = '\0';
 			width = 1;
 			i = 1;
 

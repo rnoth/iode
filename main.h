@@ -52,7 +52,7 @@ int rows, cols;
 
 /* buffer */
 struct line *l_current, *l_top, *l_first, *l_last;
-int n_total, n_current, n_top;
+int n_total, n_current, n_column, n_top;
 char *filename;
 FILE *file;
 
@@ -84,8 +84,8 @@ void update_cursor(void);
 int  input(void);
 
 /* edit */
-void cursor_up();
-void cursor_down();
+void cursor_up(void);
+void cursor_down(void);
 
 /* actions */
 void a_quit(void);
