@@ -16,15 +16,17 @@
 
 
 /*
+ * Fill `*str` with a visual representation for `rune[4]` ready to be printed.
  */
 int
-draw_rune(char *string, char rune[4], int col)
+rune_to_printable(char *str, char rune[4], int col)
 {
-	if (iscntrl(rune[0])) {
-		sprintf(string, "\033[36;1m^%s\033[m", "!");  /* TODO */
+	if (iscntrl(rune[0]) && rune[0] != '\t') {
+		sprintf(str, "\033[36;1m^%s\033[m", "!");  /* TODO */
 		return 2;
 	} else if (ISASCII(rune[0]) || rune[1]) {
-		strncat(string, rune, 4);
+		strncpy(str, rune, 4);
+		rune[5] = '\0';
 
 		if (rune[0] == '\t')
 			return 8 - (col % 8);
@@ -32,7 +34,7 @@ draw_rune(char *string, char rune[4], int col)
 	}
 
 	/* unknown */
-	sprintf(string, "\033[36m%02x\033[m", (unsigned char) rune[0]);
+	sprintf(str, "\033[36m%02x\033[m", (unsigned char) rune[0]);
 	return 2;
 }
 
@@ -47,7 +49,7 @@ draw_line(struct line *line, int number)
 	extern int cols;
 
 	/* 18 is length of "\033[3?m????\033[m" */
-	char string[18 * MAX_LINE_SIZE + 1] = "";
+	char s[5] = "", str[18 * MAX_LINE_SIZE + 1] = "";
 	int i, col = 8;
 
 	if (!line) {
@@ -57,13 +59,15 @@ draw_line(struct line *line, int number)
 
 	/* add chars to print until the screen is filled or end of string */
 	for (i = 0; line->text[i][0] && cols - col > 0; i++) {
-		col += draw_rune(string, line->text[i], col);
+		col += rune_to_printable(s, line->text[i], col);
 
 		/* not enough space to fit next char onscreen */
-		if (cols < col + 2 && line->text[0][0] && line->text[1][0]) {
-			strcat(string, "\033[1;31m>\033[m");
+		if (cols < col && line->text[0][0] && line->text[1][0]) {
+			strcat(str, "\033[1;31m>\033[m");
 			break;
 		}
+
+		strcat(str, s);
 	}
 
 	fprintf(
@@ -71,7 +75,7 @@ draw_line(struct line *line, int number)
 		line == l_current ?
 		"\r\033[K\033[1m"    "%7d\033[m %s" :
 		"\r\033[K\033[1;30m" "%7d\033[m %s",
-		number, string
+		number, str
 	);
 
 	fputc('\n', stderr);

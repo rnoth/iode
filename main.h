@@ -68,17 +68,20 @@ struct line * new_line(char *s);
 void read_buffer(char *filename);
 void free_buffer(struct line *);
 
+/* utf8 */
+void str_to_runes(char [][4], char *);
+
 /* draw */
-void update_line(struct line *, int);
 void draw_line(struct line *, int);
-void draw_screen(void);
+void update_line(struct line *, int);
 void update_status_line(void);
+void update_cursor(void);
 void update_terminal_size(void);
-void cursor_follow_screen();
-void screen_focus_cursor();
+void draw_screen(void);
 void scroll_up(void);
 void scroll_down(void);
-void update_cursor(void);
+void cursor_follow_screen();
+void screen_focus_cursor();
 
 /* input */
 int  input(void);

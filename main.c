@@ -128,10 +128,10 @@ main(int argc, char *argv[])
 	fputs("\033[0;0H", stderr);
 	draw_screen();
 
-	/*input();*/
+	input();
 
 	/* reset the terminal */
-	/*update_terminal_size();*/
+	update_terminal_size();
 	fprintf(stderr, "\033[%d;0H\n", cols);
 	set_terminal(RESET);
 
