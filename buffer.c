@@ -35,9 +35,9 @@ link_lines(struct line *prev, struct line *next)
 
 
 /*
- * Shift `text` pointer to next rune then return an array of 4 chars max
- * corresponding to the UTF-8 or ASCII character, or a single char if is none
- * of these both.
+ * Return a pointer to next rune in `text` and fill the `rune` array with 4
+ * chars max corresponding to the UTF-8 or ASCII character, or a single char if
+ * is none of these both.
  *
  * ASCII all have a leading '0' byte:
  *
@@ -76,7 +76,7 @@ add_rune(char rune[], char text[])
 	for (i = 0; i < n ; i++)
 		rune[i] = text[i];
 
-	return text + sizeof(char);
+	return text + n * sizeof(char);
 }
 
 
@@ -91,7 +91,7 @@ to_runes(char *s)
 
 	for (i = 0; s[0] && i < MAX_LINE_SIZE - 1; i++) {
 		s = add_rune(runes[i], s);
-		fprintf(stderr, "%s", runes[i]);
+		fputs(runes[i], stderr);
 	}
 
 	runes[MAX_LINE_SIZE][0] = '\0';
