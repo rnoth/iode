@@ -35,9 +35,9 @@ link_lines(struct line *prev, struct line *next)
 
 
 /*
- * Return a pointer to next rune in `text` and fill the `rune` array with 4
- * chars max corresponding to the UTF-8 or ASCII character, or a single char if
- * is none of these both.
+ * Return a pointer to an array of runes: array of up to 4 chars max
+ * corresponding to the UTF-8 or ASCII character, or a single char if is none
+ * of these both.
  *
  * ASCII all have a leading '0' byte:
  *
@@ -52,49 +52,39 @@ link_lines(struct line *prev, struct line *next)
  *
  * There is up to 3 continuation bytes -- up to 4 bytes per runes.
  */
-char *
-add_rune(char rune[], char text[])
+void
+string_to_runes(char text[][4], char string[])
 {
-	int i = 0, n = 1;  /* number of chars in rune */
-	rune[0] = rune[1] = rune[2] = rune[3] = rune[4] = '\0';
+	int r = 0;  /* index in text[][] of rune[] */
+	int s = 0;  /* index in string[] */
+	int n = 1;  /* number of chars in one rune */
+	int i = 0;
 
-	/* check if char is UTF-8 or ASCII */
-	if (text[0] & 1 << 7) {
+	for (r = 0; string[s] && r < MAX_LINE_SIZE - 1; r++) {
+		text[r][0] = text[r][1] = text[r][2] = text[r][3] = '\0';
 
-		/* count number of announced continuation bytes */
-		for (n = 1; (text[0] & 1 << (7 - n)); n++) {
+		/* check if char is UTF-8 or ASCII */
+		if (string[s] & 1 << 7) {
 
-			/* check formatting of continuation byte */
-			if (n > 4 || !(text[n] & 1 << 7 && ~text[n] & 1 << 6)) {
-				n = 1;
-				break;
+			/* first byte give the number of continuation bytes */
+			for (n = 1; (string[s] & 1 << (7 - n)); n++) {
+
+				/* check formatting of continuation byte */
+				if (
+					!( string[s + n] & 1 << 7) ||
+					!(~string[s + n] & 1 << 6) ||
+					n > 4
+				) {
+					n = 1;
+					break;
+				}
 			}
 		}
+
+		/* fill rune with byte(s) */
+		for (i = 0; i < n ; i++, s++)
+			text[r][i] = string[s];
 	}
-
-	/* fill rune with byte(s) */
-	for (i = 0; i < n ; i++)
-		rune[i] = text[i];
-
-	return text + n * sizeof(char);
-}
-
-
-/*
- * Read a string in an array of runes up to `MAX_LINE_SIZE` characters.
- */
-void
-to_runes(char *s)
-{
-	char runes[MAX_LINE_SIZE][5];
-	int i;
-
-	for (i = 0; s[0] && i < MAX_LINE_SIZE - 1; i++) {
-		s = add_rune(runes[i], s);
-		fputs(runes[i], stderr);
-	}
-
-	runes[MAX_LINE_SIZE][0] = '\0';
 }
 
 
@@ -110,6 +100,7 @@ read_buffer(char* name)
 	extern FILE *file;
 
 	char s[MAX_LINE_SIZE];
+	char text[MAX_LINE_SIZE][4];
 
 	/* init empty buffer */
 	l_current = l_top = l_first = l_last = NULL;
@@ -128,7 +119,7 @@ read_buffer(char* name)
 		link_lines(l_last, l_current);
 		l_last = l_current;
 		l_first = l_first ? l_first : l_current;
-		to_runes(s);
+		string_to_runes(text, s);
 	}
 
 	l_top = l_current = l_first;
