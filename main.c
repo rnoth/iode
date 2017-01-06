@@ -67,8 +67,9 @@ die(const char *message)
 
 	if (l_first)
 		free_buffer(l_first);
-
+	fclose(file);
 	set_terminal(RESET);
+
 	exit(EXIT_FAILURE);
 }
 

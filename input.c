@@ -56,7 +56,10 @@ input()
 
 	size_t i = 0;
 	char k;
-	FILE *tty_fp = fopen("/dev/tty", "r");
+	FILE *tty_fp = NULL;
+	
+	if (!(tty_fp = fopen("/dev/tty", "r")))
+		die("fopen");
 
 	/* main execution loop: get input char by char from the keyboard */
 	mode = PAGER;
@@ -73,6 +76,9 @@ input()
 				keybindings[i].action();
 		}
 	}
+
+	if (fclose(tty_fp) == EOF)
+		die("fclose");
 
 	return mode;
 }
