@@ -62,10 +62,10 @@ add_rune(char rune[], char text[])
 	if (text[0] & 1 << 7) {
 
 		/* count number of announced continuation bytes */
-		for (n = 1; n <= 4 && (text[0] & 1 << (7 - n)); n++) {
+		for (n = 1; (text[0] & 1 << (7 - n)); n++) {
 
 			/* check formatting of continuation byte */
-			if (!(text[n] & 1 << 7) || !(~text[n] & 1 << 6)) {
+			if (n > 4 || !(text[n] & 1 << 7 && ~text[n] & 1 << 6)) {
 				n = 1;
 				break;
 			}
