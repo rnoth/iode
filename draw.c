@@ -26,7 +26,7 @@ rune_to_printable(char *str, char rune[4], int col)
 		return 2;
 	} else if (ISASCII(rune[0]) || rune[1]) {
 		strncpy(str, rune, 4);
-		rune[5] = '\0';
+		str[5] = '\0';
 
 		if (rune[0] == '\t')
 			return 8 - (col % 8);
