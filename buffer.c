@@ -53,7 +53,6 @@ read_buffer(char* name)
 	extern FILE *file;
 
 	char s[MAX_LINE_SIZE];
-	char text[MAX_LINE_SIZE][4];
 
 	/* init empty buffer */
 	l_current = l_top = l_first = l_last = NULL;
@@ -72,7 +71,6 @@ read_buffer(char* name)
 		link_lines(l_last, l_current);
 		l_last = l_current;
 		l_first = l_first ? l_first : l_current;
-		str_to_runes(text, s);
 	}
 
 	l_top = l_current = l_first;

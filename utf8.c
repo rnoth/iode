@@ -54,7 +54,7 @@
 char *
 str_to_rune(char rune[4], char *str)
 {
-	int i, n = 1;  /* number chars in rune */
+	int i, n = 1;  /* number chars in the rune */
 
 	rune[0] = rune[1] = rune[2] = rune[3] = '\0';
 

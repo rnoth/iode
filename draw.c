@@ -73,12 +73,10 @@ draw_line(struct line *line, int number)
 	fprintf(
 		stderr,
 		line == l_current ?
-		"\r\033[K\033[1m"    "%7d\033[m %s" :
-		"\r\033[K\033[1;30m" "%7d\033[m %s",
+		"\r\033[K\033[1m"    "%7d\033[m %s\n" :
+		"\r\033[K\033[1;30m" "%7d\033[m %s\n",
 		number, str
 	);
-
-	fputc('\n', stderr);
 }
 
 
