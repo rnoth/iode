@@ -28,6 +28,7 @@ rune_to_printable(char *str, long rune, int col)
 	if (iscntrl(s[0]) && s[0] != '\t') {
 		sprintf(str, "\033[36;1m^%s\033[m", "!");  /* TODO */
 		return 2;
+
 	} else if (ISASCII(s[0]) || s[1]) {
 		strncpy(str, s, 4);
 		str[5] = '\0';
@@ -66,7 +67,10 @@ draw_line(struct line *line, int number)
 		col += rune_to_printable(s, line->text[i], col);
 
 		/* not enough space to fit next char onscreen */
-		if (cols < col && line->text[i] && line->text[i + 1]) {
+		if (
+			cols < col ||
+			(cols == col && line->text[i] && line->text[i + 1])
+		) {
 			strcat(str, "\033[1;31m>\033[m");
 			break;
 		}
