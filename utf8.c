@@ -12,32 +12,11 @@
  *
  * There is up to 3 continuation bytes -- up to 4 bytes per runes.
  *
- * Every array element has 4 bytes, with all empty, but those from the
- * parsed UTF-8 string:
+ * The whole character value is retreived into an 'x' and stored into a
+ * (signed long)[].
  *
- * ASCII:
- *
- *  0xxxxxxx 00000000 00000000 00000000
- *
- * UTF-8:
- *
- *  110xxxxx 10xxxxxx 00000000 00000000
- *  1110xxxx 10xxxxxx 10xxxxxx 00000000
- *  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
- *
- * The others -- 'broken' runes -- get split as single characters:
- *
- * Runes with broken continuation byte:
- *
- *  11xxxxxx 00000000 00000000 00000000  00xxxxxx 00000000 00000000 00000000
- *  11xxxxxx 00000000 00000000 00000000  11xxxxxx 00000000 00000000 00000000
- *
- * Runes with leading byte with more than 4 or less than leading 2 bits:
- *
- *  10xxxxxx 00000000 00000000 00000000
- *  111111xx 00000000 00000000 00000000
- *
- * If there is any other kind output from this function, this may be a bug.
+ * If there are broken UTF-8 characters, the value of all broken bytes are
+ * stored as negative for each byte.
  */
 
 #include <stdlib.h>
@@ -48,15 +27,16 @@
 
 
 /*
- * Fill rune[4] with the next rune among string, and returns a pointer to the
- * beginning of the next rune.
+ * Returns the number of bytes of the first UTF-8 character of `char *str`:
+ *
+ * - 1 for ASCII;
+ * - 2, 3, 4 for other UTF-8;
+ * - 0 for malformed UTF-8.
  */
-char *
-str_to_rune(char rune[4], char *str)
+int
+utf8_length(char *str)
 {
-	int i, n = 1;  /* number chars in the rune */
-
-	rune[0] = rune[1] = rune[2] = rune[3] = '\0';
+	int n = 1;
 
 	/* check if char is UTF-8 or ASCII */
 	if (str[0] & 1 << 7) {
@@ -66,43 +46,52 @@ str_to_rune(char rune[4], char *str)
 
 			/* check formatting of continuation byte */
 			if (n > 4 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6)) {
-				n = 1;
-				break;
+				return 0;
 			}
 		}
 	}
 
-	/* fill rune with byte(s) */
-	for (i = 0; i < n ; i++)
-		rune[i] = str[i];
-
-	return &str[n];
+	return n;
 }
 
 
 /*
- * Return a pointer to an array of runes: array of up to 4 chars max
- * corresponding to the UTF-8 or ASCII character, or a single char if is
- * none of these both.
- *
- * Convert continuous feed of bytes into an array of runes.
+ * Convert an UTF-8 string into an array of long code points, one item per
+ * long, with bytes not fitting the UTF-8 format stored as negative
+ * numbers.
  */
 void
-str_to_runes(char text[][4], char *str)
+str_to_runes(signed long text[], char *str)
 {
-	int i;
+	int i = 0, t = 0, k = 0;
+	int n = 0;
 
-	for (i = 0; str[0] && i < MAX_LINE_SIZE - 1; i++)
-		str = str_to_rune(text[i], str);
+	for (t = 0; str[i] && i < MAX_LINE_SIZE - 1; t++, i += n ? n : 1) {
+		n = utf8_length(&str[i]);
+
+		/* UTF-8 */
+		if (n > 1) {
+			text[t] = (str[i] % (1 << (7 - n))) << (n - 1) * 6;
+
+			for (k = 1; str[i + k] && k < n; k++)
+				text[t] |= (str[i + k] % 1 << 6) << 6 * (n - k);
+
+		/* ASCII */
+		} else if (n > 0) {
+			text[t] = str[i];
+
+		/* malformed UTF-8 bytes */
+		} else if (n == 0) {
+			text[t] = -str[i];
+		}
+
+		fprintf(stdout, "(%ld)", text[t]);
+	}
 }
 
 
 void
-runes_to_str(char text[][4])
+runes_to_str()
 {
-	char *str = "";
-	int i;
-
-	for (i = 0; text[i][0]; i++)
-		strncat(str, text[i], 4);
+	
 }

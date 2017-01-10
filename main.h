@@ -1,19 +1,19 @@
 /* constants */
 
-#define PROGRAM_NAME            "iode"
-#define MAX_LINE_SIZE           2048
-#define MAX_KEYS                8
+#define PROGRAM_NAME  "iode"
+#define MAX_LINE_SIZE 2048
+#define MAX_KEYS      8
 #define FLAGS "abcdefghijklmnopqrstuvwxy"
 
 
 /* macros */
 
-#define LENGTH(ARRAY)  (sizeof(ARRAY) / sizeof(ARRAY)[0])
-#define MIN(X, Y)      (((X) < (Y)) ? (X) : (Y))
-#define MAX(X, Y)      (((X) > (Y)) ? (X) : (Y))
-#define CONTROL(c) (char) (c ^ 0x40)
-#define ISASCII(c) ((unsigned char) c <  0x80)
-#define ISUTF8(c)  ((unsigned char) c >= 0x80)
+#define LENGTH(ARRAY) (sizeof(ARRAY) / sizeof(ARRAY)[0])
+#define MIN(X, Y)     (((X) < (Y)) ? (X) : (Y))
+#define MAX(X, Y)     (((X) > (Y)) ? (X) : (Y))
+#define CONTROL(C)    (char) (C ^ 0x40)
+#define ISASCII(C)    ((unsigned char) C <  0x80)
+#define ISUTF8(C)     ((unsigned char) C >= 0x80)
 
 
 /* enums */
@@ -24,7 +24,7 @@ enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE };
 /* datatypes */
 
 struct line {
-	char text[MAX_LINE_SIZE][4];
+	signed long text[MAX_LINE_SIZE];
 	struct line *prev, *next;
 };
 
@@ -69,7 +69,7 @@ void read_buffer(char *filename);
 void free_buffer(struct line *);
 
 /* utf8 */
-void str_to_runes(char [][4], char *);
+void str_to_runes(signed long [], char *);
 
 /* draw */
 void draw_line(struct line *, int);
