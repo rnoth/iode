@@ -24,7 +24,7 @@ enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE };
 /* datatypes */
 
 struct line {
-	signed long text[MAX_LINE_SIZE];
+	long text[MAX_LINE_SIZE];
 	struct line *prev, *next;
 };
 
@@ -69,7 +69,7 @@ void read_buffer(char *filename);
 void free_buffer(struct line *);
 
 /* utf8 */
-void str_to_runes(signed long [], char *);
+void str_to_runes(long [], char *);
 
 /* draw */
 void draw_line(struct line *, int);

@@ -13,11 +13,12 @@
  * There is up to 3 continuation bytes -- up to 4 bytes per runes.
  *
  * The whole character value is retreived into an 'x' and stored into a
- * (signed long)[].
+ * (long)[].
  *
  * If there are broken UTF-8 characters, the value of all broken bytes are
  * stored as negative for each byte.
  */
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,64 +27,45 @@
 #include "main.h"
 
 
-void
-showbits(long x)
-{
-	int i;
-
-	for (i = (sizeof (long) * 8 / 2) - 1; i >= 0; i--)
-		(x & (1 << i)) ? putchar('1') : putchar('0');
-
-	putchar('\n');
-}
-
-
 /*
- * Returns the number of bytes for the first rune of `char *str`: 1
- * for ASCII -- 2, 3, 4 for other UTF-8 -- 0 for malformed UTF-8.
+ * Returns the number of bytes for the first rune of `str`: 1, 2, 3, 4 or 0 for
+ * malformed UTF-8.
  */
 int
 utf8_length(char *str)
 {
 	int n = 1;
 
-	/* check if char is UTF-8 or ASCII */
-	if (str[0] & 1 << 7) {
+	/* check if multibyte */
+	if (str[0] & 1 << 7)
 
-		/* first byte give the number of continuation bytes */
-		for (n = 1; (str[0] & 1 << (7 - n)); n++) {
+		/* get the number of continuation bytes */
+		for (n = 1; (str[0] & 1 << (7 - n)); n++)
 
-			/* check formatting of continuation byte */
-			if (n > 4 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6)) {
+			/* check formatting */
+			if (n > 4 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6))
 				return 0;
-			}
-		}
-	}
 
 	return n;
 }
 
 
 /*
- * Set rune the first rune of the string and return a pointer to the beginning
- * of the next rune in str.
+ * Set `rune` the first rune of `str` and return a pointer to the beginning of
+ * the next rune in `str`.
  */
 char *
 next_rune(long *rune, char str[])
 {
-	int i = 0, n = utf8_length(str);
+	int i, n = utf8_length(str);
 
 	/* UTF-8 */
 	if (n > 1) {
-		showbits((unsigned char) str[0]);
-		showbits((unsigned char) str[0] % (1 << (7 - n)) << 6 * n);
+		*rune = (unsigned char) str[0] % (1 << (7 - n)) << 6 * (n - 1);
 
-		*rune = (unsigned char) str[0] % (1 << (7 - n)) << 6 * n;
-
-		for (i = 0; i < n; i++) {
-			showbits((unsigned char) str[i] % (1 << 6) << (6 * i));
-			*rune |= (unsigned char) str[i] % (1 << 6) << (6 * i);
-		}
+		for (i = 1; i < n; i++)
+			*rune |= (unsigned char)
+				str[i] % (1 << 6) << 6 * (n - i - 1);
 
 	/* ASCII */
 	} else if (n > 0) {
@@ -103,14 +85,12 @@ next_rune(long *rune, char str[])
  * numbers.
  */
 void
-str_to_runes(signed long text[], char str[])
+str_to_runes(long text[], char str[])
 {
 	int i = 0;
 
-	for (i = 0; str[0] && i < MAX_LINE_SIZE - 1; i++) {
+	for (i = 0; str[0] && i < MAX_LINE_SIZE - 1; i++)
 		str = next_rune(&text[i], str);
-		showbits(text[i]);
-	}
 }
 
 
