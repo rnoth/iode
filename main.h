@@ -13,7 +13,6 @@
 #define MAX(X, Y)     (((X) > (Y)) ? (X) : (Y))
 #define CONTROL(C)    (char) (C ^ 0x40)
 #define ISASCII(C)    ((unsigned char) C <  0x80)
-#define ISUTF8(C)     ((unsigned char) C >= 0x80)
 
 
 /* enums */
