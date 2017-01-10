@@ -26,12 +26,21 @@
 #include "main.h"
 
 
+void
+showbits(long x)
+{
+	int i;
+
+	for (i = (sizeof (long) * 8 / 2) - 1; i >= 0; i--)
+		(x & (1 << i)) ? putchar('1') : putchar('0');
+
+	putchar('\n');
+}
+
+
 /*
- * Returns the number of bytes of the first UTF-8 character of `char *str`:
- *
- * - 1 for ASCII;
- * - 2, 3, 4 for other UTF-8;
- * - 0 for malformed UTF-8.
+ * Returns the number of bytes for the first rune of `char *str`: 1
+ * for ASCII -- 2, 3, 4 for other UTF-8 -- 0 for malformed UTF-8.
  */
 int
 utf8_length(char *str)
@@ -56,36 +65,51 @@ utf8_length(char *str)
 
 
 /*
+ * Set rune the first rune of the string and return a pointer to the beginning
+ * of the next rune in str.
+ */
+char *
+next_rune(long *rune, char str[])
+{
+	int i = 0, n = utf8_length(str);
+
+	/* UTF-8 */
+	if (n > 1) {
+		showbits((unsigned char) str[0]);
+		showbits((unsigned char) str[0] % (1 << (7 - n)) << 6 * n);
+
+		*rune = (unsigned char) str[0] % (1 << (7 - n)) << 6 * n;
+
+		for (i = 0; i < n; i++) {
+			showbits((unsigned char) str[i] % (1 << 6) << (6 * i));
+			*rune |= (unsigned char) str[i] % (1 << 6) << (6 * i);
+		}
+
+	/* ASCII */
+	} else if (n > 0) {
+		*rune = str[0];
+
+	/* malformed UTF-8 byte */
+	} else if (n == 0) {
+		*rune = -str[0];
+	}
+
+	return &str[n ? n : 1];
+}
+
+/*
  * Convert an UTF-8 string into an array of long code points, one item per
  * long, with bytes not fitting the UTF-8 format stored as negative
  * numbers.
  */
 void
-str_to_runes(signed long text[], char *str)
+str_to_runes(signed long text[], char str[])
 {
-	int i = 0, t = 0, k = 0;
-	int n = 0;
+	int i = 0;
 
-	for (t = 0; str[i] && i < MAX_LINE_SIZE - 1; t++, i += n ? n : 1) {
-		n = utf8_length(&str[i]);
-
-		/* UTF-8 */
-		if (n > 1) {
-			text[t] = (str[i] % (1 << (7 - n))) << (n - 1) * 6;
-
-			for (k = 1; str[i + k] && k < n; k++)
-				text[t] |= (str[i + k] % 1 << 6) << 6 * (n - k);
-
-		/* ASCII */
-		} else if (n > 0) {
-			text[t] = str[i];
-
-		/* malformed UTF-8 bytes */
-		} else if (n == 0) {
-			text[t] = -str[i];
-		}
-
-		fprintf(stdout, "(%ld)", text[t]);
+	for (i = 0; str[0] && i < MAX_LINE_SIZE - 1; i++) {
+		str = next_rune(&text[i], str);
+		showbits(text[i]);
 	}
 }
 
