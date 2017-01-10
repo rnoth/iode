@@ -1,5 +1,5 @@
 CFLAGS    = -std=c89 -pedantic -Wall -Wextra -g -static
-SRC       = main.c buffer.c utf8.c #draw.c edit.c input.c actions.c
+SRC       = main.c buffer.c utf8.c draw.c edit.c input.c actions.c
 OBJ       = ${SRC:.c=.o}
 
 MANPREFIX = $(PREFIX)

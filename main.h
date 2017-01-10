@@ -70,6 +70,7 @@ void free_buffer(struct line *);
 
 /* utf8 */
 void str_to_runes(long [], char *);
+void rune_to_str(char *, long);
 
 /* draw */
 void draw_line(struct line *, int);
