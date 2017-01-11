@@ -20,10 +20,11 @@
 enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE };
 
 
-/* datatypes */
+/* structs */
 
 struct line {
 	long text[MAX_LINE_SIZE];
+	size_t length;
 	struct line *prev, *next;
 };
 
@@ -35,7 +36,6 @@ struct keybinding {
 	char keys[MAX_KEYS];
 	void (*action)(void);
 };
-
 
 
 /* variables */

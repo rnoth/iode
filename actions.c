@@ -41,6 +41,9 @@ a_jump_begin(void)
 	struct line *line = l_current;
 	int number = n_current;
 
+	if (!l_current)
+		return;
+
 	l_current = l_first;
 	n_current = 1;
 
@@ -63,6 +66,9 @@ a_jump_end(void)
 
 	struct line *line = l_current;
 	int number = n_current;
+
+	if (!l_current)
+		return;
 
 	l_current = l_last;
 	n_current = n_total;
