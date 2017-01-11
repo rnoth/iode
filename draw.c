@@ -275,6 +275,8 @@ screen_focus_cursor()
 	extern struct line *l_current;
 	extern int n_top, n_current, rows;
 
+	update_line(l_current, n_current);
+
 	/* reach cursor if it is above the screen */
 	while (l_current && n_current < n_top)
 		scroll_up();
