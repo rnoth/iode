@@ -3,12 +3,14 @@
  *
  *  0xxxxxxx
  *
- * UTF-8 have one leading '1' and as many following '1' as there are
+ * UTF-8(7) have one leading '1' and as many following '1' as there are
  * continuation bytes (with leading '1' and '0').
  *
  *  110xxxxx 10xxxxxx
  *  1110xxxx 10xxxxxx 10xxxxxx
  *  11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+ *  111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+ *  1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
  *
  * There is up to 3 continuation bytes -- up to 4 bytes per runes.
  *
@@ -43,7 +45,7 @@ utf8_length(char *str)
 		for (n = 1; (str[0] & 1 << (7 - n)); n++)
 
 			/* check formatting */
-			if (n > 4 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6))
+			if (n > 7 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6))
 				return 0;
 
 	return n;
@@ -59,21 +61,21 @@ next_rune(long *rune, char str[])
 {
 	int i, n = utf8_length(str);
 
-	/* UTF-8 */
-	if (n > 1) {
+	/* malformed byte sequence */
+	if (n == 0) {
+		*rune = -((unsigned char) str[0]);
+
+	/* single byte */
+	} else if (n == 1) {
+		*rune = str[0];
+
+	/* multibyte */
+	} else if (n > 1) {
 		*rune = (unsigned char) str[0] % (1 << (7 - n)) << 6 * (n - 1);
 
 		for (i = 1; i < n; i++)
 			*rune |= (unsigned char)
 				str[i] % (1 << 6) << 6 * (n - i - 1);
-
-	/* ASCII */
-	} else if (n == 1) {
-		*rune = str[0];
-
-	/* malformed UTF-8 byte */
-	} else if (n == 0) {
-		*rune = -((unsigned char) str[0]);
 	}
 
 	return &str[n ? n : 1];
@@ -83,28 +85,30 @@ next_rune(long *rune, char str[])
 void
 rune_to_str(char *str, long rune)
 {
+	int i, n = 0;
+
 	if (rune < 0) {
 		str[0] = -rune;
-
-	} else if (rune < 0x00080) {
+		str[1] = '\0';
+		return;
+	} else if (rune < 1 << 7) {
 		str[0] = rune;
-
-	} else if (rune < 0x00800) {
-		str[0] = (rune >> 6) | (1 << 7) | (1 << 6);
-		str[1] = ((rune >> 0) % (1 << 6)) | (1 << 7);
-
-	} else if (rune < 0x10000) {
-		str[0] = (rune >> 12) | (1 << 7) | (1 << 6) | (1 << 5);
-		str[1] = ((rune >> 6) % (1 << 6)) | (1 << 7);
-		str[2] = ((rune >> 0) % (1 << 6)) | (1 << 7);
-
-	} else if (rune < 0x11000) {
-		str[0] = (rune >> 18) |
-			(1 << 7) | (1 << 6) | (1 << 5) | (1 << 4);
-		str[1] = ((rune >> 12) % (1 << 6)) | (1 << 7);
-		str[2] = ((rune >> 6)  % (1 << 6)) | (1 << 7);
-		str[3] = ((rune >> 0)  % (1 << 6)) | (1 << 7);
+		str[1] = '\0';
+		return;
 	}
+
+	/* count number of continuation bytes required */
+	while (n < 8 && rune >= 1 << 7 && rune >= 1 << ((6 - n) + (6 * n)))
+		n++;
+
+	str[0] = rune >> (6 * n) | 1 << 7;
+
+	for (i = 1; i <= n; i++) {
+		str[0] |= 1 << (7 - i);
+		str[i] = ((rune >> 6 * (n - i)) % (1 << 6)) | (1 << 7);
+	}
+
+	str[i] = '\0';
 }
 
 
@@ -116,7 +120,12 @@ void
 str_to_runes(long text[], char str[])
 {
 	int i;
+	char s[MAX_LINE_SIZE] = { '\0', '\0' };
 
-	for (i = 0; str[0] && i < MAX_LINE_SIZE - 1; i++)
+	for (i = 0; str[0] && i < MAX_LINE_SIZE - 1; i++) {
 		str = next_rune(&text[i], str);
+		rune_to_str(s, text[i]);
+		fputs(s, stdout);
+	}
+	putchar('\n');
 }
