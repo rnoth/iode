@@ -53,6 +53,21 @@ utf8_length(char *str)
 
 
 /*
+ * Return the number of bytes required to draw a rune
+ */
+int
+required_bytes(long rune)
+{
+	int n = 0;
+
+	while (n < 8 && rune >= 1 << 7 && rune >= 1 << ((6 - n) + (6 * n)))
+		n++;
+
+	return n + 1;
+}
+
+
+/*
  * Set `rune` the first rune of `str` and return a pointer to the beginning of
  * the next rune in `str`.
  */
@@ -76,6 +91,11 @@ next_rune(long *rune, char str[])
 		for (i = 1; i < n; i++)
 			*rune |= (unsigned char)
 				str[i] % (1 << 6) << 6 * (n - i - 1);
+
+		if (required_bytes(*rune) != n) {
+			*rune = -((unsigned char) str[0]);
+			n = 0;
+		}
 	}
 
 	return &str[n ? n : 1];
@@ -85,7 +105,7 @@ next_rune(long *rune, char str[])
 void
 rune_to_str(char *str, long rune)
 {
-	int i, n = 0;
+	int i, n = required_bytes(rune) - 1;
 
 	if (rune < 0) {
 		str[0] = -rune;
@@ -98,8 +118,6 @@ rune_to_str(char *str, long rune)
 	}
 
 	/* count number of continuation bytes required */
-	while (n < 8 && rune >= 1 << 7 && rune >= 1 << ((6 - n) + (6 * n)))
-		n++;
 
 	str[0] = rune >> (6 * n) | 1 << 7;
 
