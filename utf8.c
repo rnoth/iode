@@ -34,7 +34,7 @@
  * malformed UTF-8.
  */
 int
-utf8_length(char *str)
+utf8_byte_count(char *str)
 {
 	int n = 1;
 
@@ -56,7 +56,7 @@ utf8_length(char *str)
  * Return the number of bytes required to draw a rune
  */
 int
-required_bytes(long rune)
+utf8_required_bytes(long rune)
 {
 	int n = 0;
 
@@ -72,9 +72,9 @@ required_bytes(long rune)
  * the next rune in `str`.
  */
 char *
-next_rune(long *rune, char str[])
+utf8_decode(long *rune, char str[])
 {
-	int i, n = utf8_length(str);
+	int i, n = utf8_byte_count(str);
 
 	/* malformed byte sequence */
 	if (n == 0) {
@@ -92,7 +92,7 @@ next_rune(long *rune, char str[])
 			*rune |= (unsigned char)
 				str[i] % (1 << 6) << 6 * (n - i - 1);
 
-		if (required_bytes(*rune) != n) {
+		if (utf8_required_bytes(*rune) != n) {
 			*rune = -((unsigned char) str[0]);
 			n = 0;
 		}
@@ -103,9 +103,9 @@ next_rune(long *rune, char str[])
 
 
 void
-rune_to_str(char *str, long rune)
+utf8_encode(char *str, long rune)
 {
-	int i, n = required_bytes(rune) - 1;
+	int i, n = utf8_required_bytes(rune) - 1;
 
 	if (rune < 0) {
 		str[0] = -rune;
@@ -127,23 +127,4 @@ rune_to_str(char *str, long rune)
 	}
 
 	str[i] = '\0';
-}
-
-
-/*
- * Convert an UTF-8 string into an array of runes (code points), with bytes not
- * fitting the UTF-8 format stored as negative numbers.
- */
-void
-str_to_runes(long text[], char str[])
-{
-	int i;
-	char s[MAX_LINE_SIZE] = { '\0', '\0' };
-
-	for (i = 0; str[0] && i < MAX_LINE_SIZE - 1; i++) {
-		str = next_rune(&text[i], str);
-		rune_to_str(s, text[i]);
-		fputs(s, stdout);
-	}
-	putchar('\n');
 }

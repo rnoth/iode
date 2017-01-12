@@ -23,7 +23,7 @@ rune_to_printable(char *str, long rune, int col)
 {
 	char s[4] = {'\0', '\0', '\0', '\0'};
 
-	rune_to_str(s, rune);
+	utf8_encode(s, rune);
 
 	if (iscntrl(s[0]) && s[0] != '\t') {
 		sprintf(str, "\033[1;34m%c\033[m", toupper(s[0] + '@'));

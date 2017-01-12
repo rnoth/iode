@@ -27,7 +27,8 @@ new_line(char *str)
 	if (str[0] && str[strlen(str) - 1] == '\n')
 		str[strlen(str) - 1] = '\0';
 
-	str_to_runes(line->text, str);
+	for (i = 0; i < MAX_LINE_SIZE; i++)
+		str = utf8_decode(&line->text[i], str);
 
 	line->next = line->prev = NULL;
 
