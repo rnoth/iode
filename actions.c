@@ -204,6 +204,7 @@ a_editor(void)
 	extern int   n_top;
 
 	char *editor = getenv("EDITOR"), command[MAX_LINE_SIZE];
+	int top = n_top;
 
 	if (!filename)
 		return;
@@ -219,6 +220,10 @@ a_editor(void)
 	free_buffer(l_first);
 	fclose(file);
 	read_buffer(filename);
+
+	for (; top > 1; top--)
+		scroll_down();
+	cursor_follow_screen();
 
 	draw_screen();
 }
