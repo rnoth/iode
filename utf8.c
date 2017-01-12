@@ -86,11 +86,10 @@ utf8_decode(long *rune, char str[])
 
 	/* multibyte */
 	} else if (n > 1) {
-		*rune = (unsigned char) str[0] % (1 << (7 - n)) << 6 * (n - 1);
+		*rune = (unsigned char) str[0] % (1 << (7 - n));
 
 		for (i = 1; i < n; i++)
-			*rune |= (unsigned char)
-				str[i] % (1 << 6) << 6 * (n - i - 1);
+			*rune = *rune << 6 | (unsigned char) str[i] % (1 << 6);
 
 		if (utf8_required_bytes(*rune) != n) {
 			*rune = -((unsigned char) str[0]);
@@ -105,7 +104,7 @@ utf8_decode(long *rune, char str[])
 void
 utf8_encode(char *str, long rune)
 {
-	int i, n = utf8_required_bytes(rune) - 1;
+	int n = utf8_required_bytes(rune) - 1;
 
 	if (rune < 0) {
 		str[0] = -rune;
@@ -117,14 +116,14 @@ utf8_encode(char *str, long rune)
 		return;
 	}
 
-	/* count number of continuation bytes required */
+	str[n + 1] = '\0';
 
-	str[0] = rune >> (6 * n) | 1 << 7;
-
-	for (i = 1; i <= n; i++) {
-		str[0] |= 1 << (7 - i);
-		str[i] = ((rune >> 6 * (n - i)) % (1 << 6)) | (1 << 7);
+	for (; n > 0; n--) {
+		str[0] |= 1 << (7 - n);
+		str[n] = (rune % (1 << 6)) | (1 << 7);
+		rune = rune >> 6;
 	}
 
-	str[i] = '\0';
+	str[0] |= rune | 1 << 7;
+
 }
