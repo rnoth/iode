@@ -101,29 +101,28 @@ utf8_decode(long *rune, char str[])
 }
 
 
+/*
+ * Set `str` to the UTF-8 representation of `rune`.
+ */
 void
 utf8_encode(char *str, long rune)
 {
-	int n = utf8_required_bytes(rune) - 1;
+	int n = utf8_required_bytes(rune);
 
-	if (rune < 0) {
-		str[0] = -rune;
-		str[1] = '\0';
-		return;
-	} else if (rune < 1 << 7) {
-		str[0] = rune;
+	if (rune < 1 << 7) {
+		str[0] = (rune < 0) ? -rune : rune;
 		str[1] = '\0';
 		return;
 	}
 
-	str[n + 1] = '\0';
+	str[n] = '\0';
+	str[0] = 0;
 
-	for (; n > 0; n--) {
+	for (n--; n > 0; n--) {
 		str[0] |= 1 << (7 - n);
 		str[n] = (rune % (1 << 6)) | (1 << 7);
 		rune = rune >> 6;
 	}
 
 	str[0] |= rune | 1 << 7;
-
 }

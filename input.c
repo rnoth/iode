@@ -57,7 +57,7 @@ input()
 	size_t i = 0;
 	char k;
 	FILE *tty_fp = NULL;
-	
+
 	if (!(tty_fp = fopen("/dev/tty", "r")))
 		die("fopen");
 

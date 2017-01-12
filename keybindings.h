@@ -29,6 +29,4 @@ struct keybinding keybindings[] = {
 
 	{ { 'k'          }, a_cursor_up      },
 	{ { 'j'          }, a_cursor_down    },
-
-	{ { 'v'          }, a_editor         },
 };
