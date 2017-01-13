@@ -1,5 +1,3 @@
-void (*keys[LAST][128])(void);
-
 keys[PAGER][CONTROL('C')] = a_quit;
 keys[PAGER]['q']          = a_quit;
 keys[PAGER][CONTROL('L')] = a_redraw;

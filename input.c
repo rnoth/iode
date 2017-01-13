@@ -17,7 +17,6 @@
 #include <stdlib.h>
 
 #include "main.h"
-#include "keys.h"
 
 
 /*
@@ -51,10 +50,12 @@ get_key(FILE *tty_fp)
 int
 get_input()
 {
-	extern *(void) keys[];
 	extern int multiplier, mode;
 
 	FILE *tty_fp = NULL;
+	void (*keys[LAST][128])();
+
+#include "keys.h"
 
 	if (!(tty_fp = fopen("/dev/tty", "r")))
 		die("fopen");
