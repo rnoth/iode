@@ -17,7 +17,7 @@
 
 /* enums */
 
-enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE };
+enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE, LAST };
 
 
 /* structs */
@@ -32,16 +32,11 @@ struct cursor {
 	int l, c;  /* cursor position in line and columns */
 };
 
-struct keybinding {
-	char keys[MAX_KEYS];
-	void (*action)(void);
-};
-
 
 /* variables */
 
 /* mode state */
-char operators[MAX_LINE_SIZE];
+char input[MAX_LINE_SIZE];
 int flags[128];  /* command line and interactive options */
 int multiplier, mode;
 
@@ -50,8 +45,8 @@ int tty_fd;
 int rows, cols;
 
 /* buffer */
-struct line *l_current, *l_top, *l_first, *l_last;
-int n_total, n_current, n_column, n_top;
+struct line *l_top, *l_current, *l_selected, *l_first, *l_last;
+int n_total, n_top,  n_current,  n_selected, n_col_current, n_col_selected;
 char *filename;
 FILE *file;
 
@@ -84,7 +79,7 @@ void cursor_follow_screen();
 void screen_focus_cursor();
 
 /* input */
-int  input(void);
+int  get_input(void);
 
 /* edit */
 void cursor_up(void);

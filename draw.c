@@ -112,12 +112,12 @@ update_line(struct line *line, int number)
 void
 draw_status_line(void)
 {
-	extern char *filename, operators[];
+	extern char *filename, input[];
 	extern int n_total, cols;
 
 	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d - %s\033[m",
-		cols - 20 - (int) strlen(operators),
-		operators, n_total, filename);
+		cols - 20 - (int) strlen(input),
+		input, n_total, filename);
 }
 
 
