@@ -19,15 +19,14 @@ struct line *
 new_line(char *str, size_t length)
 {
 	struct line *line = malloc(sizeof(struct line));
-	size_t i;
 
 	if (length > 0 && str[length - 1] == '\n')
 		length--;
 
 	str[length] = '\0';
 
-	for (i = 0; i < length; i++)
-		str = utf8_decode(&line->text[i], str);
+	for (line->length = 0; length > 0; line->length++, length--)
+		str = utf8_decode(&line->text[line->length], str);
 
 	line->next = line->prev = NULL;
 
