@@ -79,25 +79,26 @@ utf8_decode(long *rune, char str[])
 	/* malformed byte sequence */
 	if (n == 0) {
 		*rune = -((unsigned char) str[0]);
+		return &str[1];
 
-	/* single byte */
+	/* single byte sequence */
 	} else if (n == 1) {
 		*rune = str[0];
-
-	/* multibyte */
-	} else if (n > 1) {
-		*rune = (unsigned char) str[0] % (1 << (7 - n));
-
-		for (i = 1; i < n; i++)
-			*rune = *rune << 6 | (unsigned char) str[i] % (1 << 6);
-
-		if (utf8_required_bytes(*rune) != n) {
-			*rune = -((unsigned char) str[0]);
-			n = 0;
-		}
+		return &str[1];
 	}
 
-	return &str[n ? n : 1];
+	/* multibyte sequence */
+	*rune = (unsigned char) str[0] % (1 << (7 - n));
+
+	for (i = 1; i < n; i++)
+		*rune = *rune << 6 | (unsigned char) str[i] % (1 << 6);
+
+	if (utf8_required_bytes(*rune) != n) {
+		*rune = -((unsigned char) str[0]);
+		return &str[1];
+	}
+
+	return &str[n];
 }
 
 
