@@ -72,7 +72,7 @@ utf8_required_bytes(long rune)
  * the next rune in `str`.
  */
 char *
-utf8_decode(long *rune, char str[])
+utf8_rune(long *rune, char str[])
 {
 	int i, n = utf8_byte_count(str);
 
@@ -99,6 +99,24 @@ utf8_decode(long *rune, char str[])
 	}
 
 	return &str[n];
+}
+
+
+/*
+ * Decode the exactly `size` first bytes of the UTF-8 string `str` into `text`.
+ * `text` gets allocated to the array of .
+ */
+size_t
+utf8_decode(long *text[], char str[], size_t size)
+{
+	size_t i;
+
+	*text = malloc(sizeof (long) * size);
+
+	for (i = 0; size > 0; i++, size--)
+		str = utf8_rune(&(*text)[i], str);
+
+	return i;
 }
 
 

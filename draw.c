@@ -55,7 +55,8 @@ draw_line(struct line *line, int number)
 
 	/* 18 is length of "\033[1;3?m??\033[m" */
 	char s[18] = "", str[18 * MAX_LENGTH + 1] = "";
-	int i, col = 8;
+	size_t i;
+	int col = 8;
 
 	if (!line) {
 		fputs("\r      \033[1;30m.\033[m\033[K\n", stderr);
@@ -63,7 +64,7 @@ draw_line(struct line *line, int number)
 	}
 
 	/* add chars to print until the screen is filled or end of string */
-	for (i = 0; line->text[i] && cols - col > 0; i++) {
+	for (i = 0; i < line->length && cols - col > 0; i++) {
 		col += rune_to_printable(s, line->text[i], col);
 
 		/* not enough space to fit next char onscreen */
@@ -114,10 +115,14 @@ draw_status_line(void)
 {
 	extern char *filename, input[];
 	extern int n_total, cols;
+	extern struct line *l_current;
 
-	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d - %s\033[m",
+	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d:%9ld - %s\033[m",
 		cols - 20 - (int) strlen(input),
-		input, n_total, filename);
+		input, n_total,
+		l_current ? l_current->length : 0,
+		filename
+	);
 }
 
 

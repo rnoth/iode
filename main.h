@@ -21,7 +21,7 @@ enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE, LAST };
 /* structs */
 
 struct line {
-	long text[MAX_LENGTH];
+	long *text;
 	size_t length;
 	struct line *prev, *next;
 };
@@ -62,7 +62,7 @@ void free_buffer(struct line *);
 
 /* utf8 */
 size_t utf8_encode(char [], long);
-char * utf8_decode(long *, char []);
+size_t utf8_decode(long *[], char [], size_t);
 
 /* draw */
 void draw_line(struct line *, int);

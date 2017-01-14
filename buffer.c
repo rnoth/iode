@@ -25,9 +25,7 @@ new_line(char *str, size_t length)
 
 	str[length] = '\0';
 
-	for (line->length = 0; length > 0; line->length++, length--)
-		str = utf8_decode(&line->text[line->length], str);
-
+	line->length = utf8_decode(&line->text, str, length);
 	line->next = line->prev = NULL;
 
 	return line;
@@ -120,6 +118,9 @@ free_buffer(struct line *line)
 
 	for (; line; line = next) {
 		next = line->next;
+
+		free(line->text);
+		line->text = NULL;
 
 		free(line);
 		line = NULL;
