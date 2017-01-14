@@ -148,12 +148,10 @@ utf8_encode(char *str, long rune)
 	int i, n = utf8_required_bytes(rune);
 
 	if (rune < 0x80) {
-		str[0] = (rune < 0) ? rune : rune;
-		str[1] = '\0';
+		str[0] = rune;
 		return 1;
 	}
 
-	str[n] = '\0';
 	str[0] = 0;
 
 	for (i = n - 1; i > 0; i--) {
