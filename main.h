@@ -58,7 +58,7 @@ void die(const char *);
 int  set_flag(char, int);
 
 /* buffer */
-struct line * new_line(char *s);
+struct line * new_line(char *s, size_t);
 void read_buffer(char *filename);
 void free_buffer(struct line *);
 

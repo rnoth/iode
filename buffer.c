@@ -16,18 +16,17 @@
  * Allocates and initialize a new line with the string content.
  */
 struct line *
-new_line(char *str)
+new_line(char *str, size_t length)
 {
 	struct line *line = malloc(sizeof(struct line));
-	int i;
+	size_t i;
 
-	for (i = 0; i < MAX_LINE_SIZE; i++)
-		line->text[i] = 0;
+	if (length > 0 && str[length - 1] == '\n')
+		length--;
 
-	if (str[0] && str[strlen(str) - 1] == '\n')
-		str[strlen(str) - 1] = '\0';
+	str[length] = '\0';
 
-	for (i = 0; i < MAX_LINE_SIZE; i++)
+	for (i = 0; i < length; i++)
 		str = utf8_decode(&line->text[i], str);
 
 	line->next = line->prev = NULL;
@@ -72,7 +71,7 @@ read_buffer(char* name)
 	}
 
 	for (n_total = 0; fgets(str, MAX_LINE_SIZE, file); n_total++) {
-		l_current = new_line(str);
+		l_current = new_line(str, strlen(str));
 		link_lines(l_last, l_current);
 		l_last = l_current;
 		l_first = l_first ? l_first : l_current;
