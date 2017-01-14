@@ -4,17 +4,17 @@
 int
 main()
 {
-	char *first, *str = malloc(4000 * sizeof (char));
+	int i;
 
-	fgets(str, 4000, stdin);
+	for (i = 0x80; i <= 0xff; i++) {
+		putchar(0xc0 | i >> 6);
+		putchar(i % (1 << 6) | 0x80);
 
-	first = str;
-
-	str = &str[5];
-
-	printf("%ld\n", str - first);
-
-	free(first);
+		if (i == 0xa0)
+			putchar('\n');
+		if (i < 0xff)
+			putchar('|');
+	}
 
 	return 0;
 }

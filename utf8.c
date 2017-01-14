@@ -39,13 +39,13 @@ utf8_byte_count(char *str)
 	int n = 1;
 
 	/* check if multibyte */
-	if (str[0] & 1 << 7)
+	if (str[0] & 0x80)
 
 		/* get the number of continuation bytes */
 		for (n = 1; (str[0] & 1 << (7 - n)); n++)
 
 			/* check formatting */
-			if (n > 7 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6))
+			if (n > 6 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6))
 				return 0;
 
 	return n;
@@ -129,8 +129,8 @@ utf8_encode(char *str, long rune)
 {
 	int i, n = utf8_required_bytes(rune);
 
-	if (rune < 1 << 7) {
-		str[0] = (rune < 0) ? -rune : rune;
+	if (rune < 0x80) {
+		str[0] = (rune < 0) ? rune : rune;
 		str[1] = '\0';
 		return 1;
 	}

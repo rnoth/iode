@@ -23,9 +23,29 @@ rune_to_printable(char *str, long rune, int col)
 
 	utf8_encode(s, rune);
 
-	if (rune < 0x80 && iscntrl((char) rune) && rune != '\t') {
-		sprintf(str, "\033[1;34m%c\033[m", toupper(s[0] + '@'));
+	/* ASCII control characters */
+	if (0 <= rune && rune < ' ' && rune != '\t') {
+		sprintf(str, "\033[1;34m%c\033[m", (char) rune + '@');
 		return 1;
+
+	} else if (rune == 0x7f) {
+		sprintf(str, "\033[1;34m%c\033[m", '?');
+		return 1;
+
+	/* Unicode control characters */
+	} else if (0x80 <= rune && rune < 0xa0) {
+		sprintf(str, "\033[1;35m%c\033[m", (char) rune - 0x80 + '@');
+		return 1;
+
+	/* non-breaking space */
+	} else if (rune == 0xa0) {
+		sprintf(str, "\033[1;33m%c\033[m", '_');
+		return 2;
+
+	/* soft hyphen */
+	} else if (rune == 0xad) {
+		sprintf(str, "\033[1;33m%c\033[m", '-');
+		return 2;
 
 	} else if (rune > 0) {
 		strncpy(str, s, 4);
@@ -37,7 +57,7 @@ rune_to_printable(char *str, long rune, int col)
 	}
 
 	/* unknown */
-	sprintf(str, "\033[36m%02x\033[m", (unsigned char) s[0]);
+	sprintf(str, "\033[36m%02x\033[m", (unsigned int) -rune);
 	return 2;
 }
 
