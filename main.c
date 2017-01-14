@@ -124,8 +124,8 @@ main(int argc, char *argv[])
 
 	set_terminal(RAW);
 
-	update_terminal_size();
 	fputs("\033[0;0H", stderr);
+	update_terminal_size();
 	draw_screen();
 
 	get_input();

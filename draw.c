@@ -1,8 +1,5 @@
 /*
  * Functions for darwing the interface using vt100 escape sequence.
- *
- * Through this code, "char" refers to the eight bits that compose a char, and
- * "character" is the single or multiple character considered as one character.
  */
 
 
@@ -16,7 +13,8 @@
 
 
 /*
- * Fill `*str` with a visual representation for `rune[4]` ready to be printed.
+ * Fill `str` with a printable representation for `rune` and return the
+ * on-screen width.
  */
 int
 rune_to_printable(char *str, long rune, int col)
@@ -63,7 +61,7 @@ draw_line(struct line *line, int number)
 		return;
 	}
 
-	/* add chars to print until the screen is filled or end of string */
+	/* print `line` until the screen is filled */
 	for (i = 0; i < line->length && cols - col > 0; i++) {
 		col += rune_to_printable(s, line->text[i], col);
 
@@ -117,7 +115,7 @@ draw_status_line(void)
 	extern int n_total, cols;
 	extern struct line *l_current;
 
-	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d:%9ld - %s\033[m",
+	fprintf(stderr, "\033[1m\033[K\033[%dC%s\r%7d:%-9ld %s\033[m",
 		cols - 20 - (int) strlen(input),
 		input, n_total,
 		l_current ? l_current->length : 0,

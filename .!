@@ -110,11 +110,10 @@ size_t
 utf8_decode(long *text[], char str[], size_t size)
 {
 	size_t i;
-	char *first = str;
 
 	*text = malloc(sizeof (long) * size);
 
-	for (i = 0; (long) size > str - first; i++)
+	for (i = 0; size > 0; i++, size--)
 		str = utf8_rune(&(*text)[i], str);
 
 	return i;
