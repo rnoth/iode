@@ -50,10 +50,12 @@ size_t
 read_line(char **str, FILE *file)
 {
 	size_t i = 0, n = 1 << 7;
+	int c;
 
 	*str = malloc(sizeof(char) * n);
 	while (
-		((*str)[i] = fgetc(file)) != EOF &&
+		(c = fgetc(file)) != EOF &&
+		((*str)[i] = c) &&
 		(unsigned char) (*str)[i] != '\n'
 	) {
 		if (i >= n - 16) {

@@ -100,8 +100,14 @@ utf8_rune(long *rune, char str[])
 		/* outside Unicode range */
 		(*rune > 0x10ffff) ||
 
-		/* non-characters */
+		/* noncharacters */
+		(0xfdd0 <= *rune && *rune <=0xfdef ) ||
 		(*rune % 0x10000 == 0xfffe || *rune % 0x10000 == 0xffff) ||
+
+		/* private use characters */
+		(0xe000 <= *rune && *rune <= 0xf8ff) ||
+		(0xf0000 <= *rune && *rune <= 0xffffd) ||
+		(0x100000 <= *rune && *rune <= 0x10fffd) ||
 
 		/* surrogates */
 		(0xd800 <= *rune && *rune <= 0xdfff)
