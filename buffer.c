@@ -45,6 +45,23 @@ link_lines(struct line *prev, struct line *next)
 
 
 /*
+ * Read a line of at most `size` chars from `file` into `str` and return its
+ * length.  Unlike fgets, it can also read null character
+ */
+size_t
+read_line(char **str, size_t n, FILE *file)
+{
+	size_t i = 0;
+
+	*str = malloc(sizeof(char) * n);
+	while (i < n && ((*str)[i] = fgetc(file)) != EOF && (*str)[i] != '\n')
+		i++;
+
+	return i;
+}
+
+
+/*
  * Read the file in a doubly linked list of lines.
  */
 void
@@ -67,22 +84,18 @@ read_buffer(char* name)
 		die("fopen");
 	}
 
+	/* read lines from file */
 	for (n_total = 0; !feof(file) && !ferror(file); n_total++) {
-		char str[MAX_LINE_SIZE];
-		size_t i = 0;
-
-		/* read a new line accepting null characters */
-		while (i < MAX_LINE_SIZE && (str[i] = fgetc(file)) != EOF) {
-			if (str[i] == '\n')
-				break;
-			i++;
-		}
+		char *str;
+		size_t i = read_line(&str, MAX_LENGTH, file);
 
 		/* create a new line and append it to the buffer */
 		l_current = new_line(str, i);
 		link_lines(l_last, l_current);
 		l_last = l_current;
 		l_first = l_first ? l_first : l_current;
+
+		free(str);
 	}
 
 	l_top = l_current = l_first;

@@ -25,7 +25,7 @@ rune_to_printable(char *str, long rune, int col)
 
 	utf8_encode(s, rune);
 
-	if (iscntrl(s[0]) && s[0] != '\t') {
+	if (rune < 0x80 && iscntrl((char) rune) && rune != '\t') {
 		sprintf(str, "\033[1;34m%c\033[m", toupper(s[0] + '@'));
 		return 1;
 
@@ -54,7 +54,7 @@ draw_line(struct line *line, int number)
 	extern int cols;
 
 	/* 18 is length of "\033[1;3?m??\033[m" */
-	char s[18] = "", str[18 * MAX_LINE_SIZE + 1] = "";
+	char s[18] = "", str[18 * MAX_LENGTH + 1] = "";
 	int i, col = 8;
 
 	if (!line) {

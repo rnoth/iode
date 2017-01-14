@@ -203,7 +203,7 @@ a_editor(void)
 	extern FILE *file;
 	extern int   n_top;
 
-	char *editor = getenv("EDITOR"), command[MAX_LINE_SIZE];
+	char *editor = getenv("EDITOR"), command[MAX_LENGTH];
 	int top = n_top;
 
 	if (!filename)

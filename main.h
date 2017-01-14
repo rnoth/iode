@@ -1,8 +1,6 @@
 /* constants */
 
-#define PROGRAM_NAME  "iode"
-#define MAX_LINE_SIZE 2048
-#define MAX_KEYS      8
+#define MAX_LENGTH   2048
 #define FLAGS "abcdefghijklmnopqrstuvwxy"
 
 
@@ -23,7 +21,7 @@ enum { PAGER = EXIT_FAILURE + 1, EDIT, SEARCH, INSERT, REPLACE, LAST };
 /* structs */
 
 struct line {
-	long text[MAX_LINE_SIZE];
+	long text[MAX_LENGTH];
 	size_t length;
 	struct line *prev, *next;
 };
@@ -36,7 +34,7 @@ struct cursor {
 /* variables */
 
 /* mode state */
-char input[MAX_LINE_SIZE];
+char input[MAX_LENGTH];
 int flags[128];  /* command line and interactive options */
 int multiplier, mode;
 
