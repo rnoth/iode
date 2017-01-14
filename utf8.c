@@ -45,7 +45,7 @@ utf8_byte_count(char *str)
 		for (n = 1; (str[0] & 1 << (7 - n)); n++)
 
 			/* check formatting */
-			if (n > 6 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6))
+			if (n > 5 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6))
 				return 0;
 
 	return n;
@@ -93,7 +93,19 @@ utf8_rune(long *rune, char str[])
 	for (i = 1; i < n; i++)
 		*rune = *rune << 6 | (unsigned char) str[i] % (1 << 6);
 
-	if (utf8_required_bytes(*rune) != n) {
+	if (
+		/* overlong sequences */
+		(utf8_required_bytes(*rune) != n) ||
+
+		/* outside Unicode range */
+		(*rune > 0x10ffff) ||
+
+		/* non-characters */
+		(*rune % 0x10000 == 0xfffe || *rune % 0x10000 == 0xffff) ||
+
+		/* surrogates */
+		(0xd800 <= *rune && *rune <= 0xdfff)
+	) {
 		*rune = -((unsigned char) str[0]);
 		return &str[1];
 	}
