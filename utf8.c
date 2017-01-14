@@ -103,27 +103,29 @@ utf8_decode(long *rune, char str[])
 
 
 /*
- * Set `str` to the UTF-8 representation of `rune`.
+ * Set `str` to the UTF-8 representation of `rune` and return its length.
  */
-void
+size_t
 utf8_encode(char *str, long rune)
 {
-	int n = utf8_required_bytes(rune);
+	int i, n = utf8_required_bytes(rune);
 
 	if (rune < 1 << 7) {
 		str[0] = (rune < 0) ? -rune : rune;
 		str[1] = '\0';
-		return;
+		return 1;
 	}
 
 	str[n] = '\0';
 	str[0] = 0;
 
-	for (n--; n > 0; n--) {
-		str[0] |= 1 << (7 - n);
-		str[n] = (rune % (1 << 6)) | (1 << 7);
+	for (i = n - 1; i > 0; i--) {
+		str[0] |= 1 << (7 - i);
+		str[i] = (rune % (1 << 6)) | (1 << 7);
 		rune = rune >> 6;
 	}
 
 	str[0] |= rune | 1 << 7;
+
+	return n;
 }

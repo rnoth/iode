@@ -63,8 +63,8 @@ void read_buffer(char *filename);
 void free_buffer(struct line *);
 
 /* utf8 */
-void utf8_encode(char [], long);
-char* utf8_decode(long *, char []);
+size_t utf8_encode(char [], long);
+char * utf8_decode(long *, char []);
 
 /* draw */
 void draw_line(struct line *, int);
