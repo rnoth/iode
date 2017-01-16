@@ -21,6 +21,12 @@ rune_to_printable(char *str, long rune, int col)
 {
 	char s[4] = {'\0', '\0', '\0', '\0'};
 
+	/* char not encoded in UTF-8 properly */
+	if (rune < 0) {
+		sprintf(str, "\033[36m%02lx\033[m", -rune);
+		return 2;
+	}
+
 	utf8_encode(s, rune);
 
 	/* ASCII control characters */
@@ -47,7 +53,28 @@ rune_to_printable(char *str, long rune, int col)
 		sprintf(str, "\033[1;33m%c\033[m", '-');
 		return 2;
 
-	} else if (rune > 0) {
+	} else if (
+		/* outside Unicode range */
+		(rune > 0x10ffff)                      ||
+
+		/* noncharacters */
+		(0xfdd0 <= rune && rune <=0xfdef )     ||
+		(rune % 0x10000 == 0xfffe)             ||
+		(rune % 0x10000 == 0xffff)             ||
+
+		/* private use characters */
+		(0xe000 <= rune && rune <= 0xf8ff)     ||
+		(0xf0000 <= rune && rune <= 0xffffd)   ||
+		(0x100000 <= rune && rune <= 0x10fffd) ||
+
+		/* surrogates */
+		(0xd800 <= rune && rune <= 0xdfff)
+	) {
+		sprintf(str, "\033[36m[%lx]\033[m", rune);
+		return strlen(str) - strlen("\033[36m\033[m");
+
+	/* valid unicode characters */
+	} else {
 		strncpy(str, s, 4);
 		str[5] = '\0';
 
@@ -56,9 +83,7 @@ rune_to_printable(char *str, long rune, int col)
 		return 1;
 	}
 
-	/* unknown */
-	sprintf(str, "\033[36m%02x\033[m", (unsigned int) -rune);
-	return 2;
+	return 0;  /* never reached */
 }
 
 

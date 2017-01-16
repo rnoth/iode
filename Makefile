@@ -1,22 +1,23 @@
 CFLAGS    = -std=c89 -pedantic -Wall -Wextra -g -static
-SRC       = main.c buffer.c utf8.c draw.c edit.c input.c actions.c
+SRC       = main.c buffer.c actions.c draw.c edit.c utf8.c input.c
 OBJ       = ${SRC:.c=.o}
+NAME      = iode
 
 MANPREFIX = $(PREFIX)
 
-all: clean iode
+all: clean ${NAME}
 
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
-iode: ${OBJ}
+${NAME}: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
 	rm -f *.o
 
 clean:
-	rm -f iode ${OBJ}
+	rm -f ${NAME} ${OBJ}
 
-install: iode
+install: ${NAME}
 	mkdir -p  $(PREFIX)/bin $(MANPREFIX)/man/man1
 	cp *.1 $(MANPREFIX)/man/man1/
-	cp iode $(PREFIX)/bin/
+	cp ${NAME} $(PREFIX)/bin/
