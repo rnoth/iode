@@ -78,7 +78,8 @@ utf8_rune(long *rune, char str[])
 
 	/* malformed byte sequence */
 	if (n == 0) {
-		*rune = -((unsigned char) str[0]);
+		putchar(str[0]);
+		*rune = str[0];
 		return &str[1];
 
 	/* single byte sequence */

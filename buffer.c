@@ -53,11 +53,12 @@ read_line(char **str, FILE *file)
 	int c;
 
 	*str = malloc(sizeof(char) * n);
+
 	while ((c = fgetc(file)) != EOF && (c != '\n')) {
 		(*str)[i] = c;
 
 		if (i >= n - 16) {
-			n <<= 1;
+			n += BUFSIZ;
 			if ((*str = realloc(*str, n)) == NULL)
 				die("realloc");
 		}

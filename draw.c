@@ -1,5 +1,5 @@
 /*
- * Functions for darwing the interface using vt100 escape sequence.
+ * Functions for darwing the interface using vt100 escape sequences.
  */
 
 
@@ -19,18 +19,13 @@
 int
 rune_to_printable(char *str, long rune, int col)
 {
-	char s[4] = {'\0', '\0', '\0', '\0'};
-
 	/* char not encoded in UTF-8 properly */
 	if (rune < 0) {
 		sprintf(str, "\033[36m%02lx\033[m", -rune);
 		return 2;
-	}
-
-	utf8_encode(s, rune);
 
 	/* ASCII control characters */
-	if (0 <= rune && rune < ' ' && rune != '\t') {
+	} else if (0 <= rune && rune < ' ' && rune != '\t') {
 		sprintf(str, "\033[1;34m%c\033[m", (char) rune + '@');
 		return 1;
 
@@ -53,6 +48,7 @@ rune_to_printable(char *str, long rune, int col)
 		sprintf(str, "\033[1;33m%c\033[m", '-');
 		return 2;
 
+	/* valid UTF-8 but not printable Unicode code points */
 	} else if (
 		/* outside Unicode range */
 		(rune > 0x10ffff)                      ||
@@ -75,11 +71,17 @@ rune_to_printable(char *str, long rune, int col)
 
 	/* valid unicode characters */
 	} else {
+
+		char s[5] = {'\0', '\0', '\0', '\0', '\0'};
+
+		utf8_encode(s, rune);
+
 		strncpy(str, s, 4);
 		str[5] = '\0';
 
 		if (s[0] == '\t')
 			return 8 - (col % 8);
+
 		return 1;
 	}
 
@@ -177,9 +179,8 @@ update_status_line(void)
 {
 	extern int rows;
 
-	fprintf(stderr, "\033[s\033[%d;0H", rows);
+	fprintf(stderr, "\033[%dH", rows);
 	draw_status_line();
-	fputs("\033[u", stderr);
 }
 
 
@@ -239,32 +240,6 @@ update_terminal_size(void)
 
 
 /*
- * Move cursor until it fits inside the screen.
- */
-void
-cursor_follow_screen()
-{
-	extern struct line *l_current;
-	extern int n_top, n_current;
-
-	/* move cursor if it is above the screen */
-	while (n_current < n_top) {
-		l_current = l_current->next;
-		n_current++;
-	}
-
-	/* move cursor if it is under the screen */
-	while (n_current > n_top + rows - 2) {
-		l_current = l_current->prev;
-		n_current--;
-	}
-
-	update_line(l_current, n_current);
-	update_cursor();
-}
-
-
-/*
  * Scroll up one line using escape sequences, print the new line, then print
  * the status line.
  */
@@ -278,12 +253,8 @@ scroll_up(void)
 		return;
 	l_top = l_top->prev;
 
-	fputs("\033[s\033[0;0H\033M", stderr);
+	fputs("\033[H\033M", stderr);
 	draw_line(l_top, --n_top);
-
-	fprintf(stderr, "\033[%d;0H", rows);
-	draw_status_line();
-	fputs("\033[u", stderr);
 }
 
 
@@ -307,10 +278,8 @@ scroll_down(void)
 	l_top = l_top->next;
 	n_top++;
 
-	fprintf(stderr, "\033[s\033[%d;0H", rows);
+	fprintf(stderr, "\033[%dH", rows);
 	draw_line(line, n_top + rows - 2);
-	draw_status_line();
-	fputs("\033[u", stderr);
 }
 
 
@@ -331,6 +300,34 @@ screen_focus_cursor()
 	while (l_current && n_current > n_top + rows - 2)
 		scroll_down();
 
+	update_status_line();
 	update_cursor();
 	update_line(l_current, n_current);
+}
+
+
+/*
+ * Move cursor until it fits inside the screen.
+ */
+void
+cursor_follow_screen()
+{
+	extern struct line *l_current;
+	extern int n_top, n_current;
+
+	/* move cursor if it is above the screen */
+	while (n_current < n_top) {
+		l_current = l_current->next;
+		n_current++;
+	}
+
+	/* move cursor if it is under the screen */
+	while (n_current > n_top + rows - 2) {
+		l_current = l_current->prev;
+		n_current--;
+	}
+
+	update_status_line();
+	update_line(l_current, n_current);
+	update_cursor();
 }
