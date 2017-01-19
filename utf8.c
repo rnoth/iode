@@ -39,14 +39,19 @@ utf8_byte_count(char *str)
 	int n = 1;
 
 	/* check if multibyte */
-	if (str[0] & 0x80)
+	if (str[0] & 1 << 7) {
+
+		if (!(str[0] & 1 << 6))
+			return 0;
 
 		/* get the number of continuation bytes */
-		for (n = 1; (str[0] & 1 << (7 - n)); n++)
+		for (n = 1; (str[0] & 1 << (7 - n)); n++) {
 
 			/* check formatting */
 			if (n > 5 || !(str[n] & 1 << 7 && ~str[n] & 1 << 6))
 				return 0;
+		}
+	}
 
 	return n;
 }
@@ -78,8 +83,7 @@ utf8_rune(long *rune, char str[])
 
 	/* malformed byte sequence */
 	if (n == 0) {
-		putchar(str[0]);
-		*rune = str[0];
+		*rune = -(unsigned char) str[0];
 		return &str[1];
 
 	/* single byte sequence */

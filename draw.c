@@ -26,7 +26,7 @@ rune_to_printable(char *str, long rune, int col)
 
 	/* ASCII control characters */
 	} else if (0 <= rune && rune < ' ' && rune != '\t') {
-		sprintf(str, "\033[1;34m%c\033[m", (char) rune + '@');
+		sprintf(str, "\033[1;34m%c\033[m", '@' + (char) rune);
 		return 1;
 
 	} else if (rune == 0x7f) {
