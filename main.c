@@ -124,6 +124,7 @@ main(int argc, char *argv[])
 	set_terminal(RAW);
 
 	fputs("\033[H", stderr);
+	fputs("\033[?1049h", stderr);
 	update_terminal_size();
 	draw_screen();
 
@@ -132,6 +133,7 @@ main(int argc, char *argv[])
 	/* reset the terminal */
 	update_terminal_size();
 	fprintf(stderr, "\033[%ldH\n", cols);
+	fputs("\033[?1049l", stderr);
 	set_terminal(RESET);
 
 	fclose(file);
