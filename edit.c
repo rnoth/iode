@@ -19,7 +19,7 @@ void
 cursor_up(void)
 {
 	extern struct line *l_current;
-	extern int n_current;
+	extern size_t n_current;
 
 	if (!l_current || !l_current->prev)
 		return;
@@ -38,7 +38,7 @@ void
 cursor_down(void)
 {
 	extern struct line *l_current;
-	extern int n_current;
+	extern size_t n_current;
 
 	if (!l_current || !l_current->next)
 		return;

@@ -50,7 +50,7 @@ size_t
 read_line(char **str, FILE *file)
 {
 	size_t i = 0, n = 1 << 7;
-	int c;
+	char c;
 
 	*str = malloc(sizeof(char) * n);
 
@@ -77,7 +77,7 @@ void
 read_buffer(char* name)
 {
 	extern struct line *l_current, *l_top, *l_first, *l_last;
-	extern int n_total, n_current, n_top;
+	extern size_t n_total, n_current, n_top;
 	extern char *filename;
 	extern FILE *file;
 

@@ -36,10 +36,10 @@ void
 a_jump_begin(void)
 {
 	extern struct line *l_current, *l_first;
-	extern int multiplier, n_current;
+	extern size_t multiplier, n_current;
 
 	struct line *line = l_current;
-	int number = n_current;
+	size_t number = n_current;
 
 	if (!l_current)
 		return;
@@ -62,10 +62,10 @@ void
 a_jump_end(void)
 {
 	extern struct line *l_current, *l_last;
-	extern int multiplier, n_current, n_total;
+	extern size_t multiplier, n_current, n_total;
 
 	struct line *line = l_current;
-	int number = n_current;
+	size_t number = n_current;
 
 	if (!l_current)
 		return;
@@ -87,9 +87,9 @@ a_jump_end(void)
 void
 a_half_page_up(void)
 {
-	extern int multiplier;
+	extern size_t multiplier;
 
-	int i;
+	size_t i;
 
 	for (i = 0; i < (rows - 1) / 2 * (multiplier ? multiplier : 1); i++)
 		scroll_up();
@@ -101,9 +101,9 @@ a_half_page_up(void)
 void
 a_half_page_down(void)
 {
-	extern int multiplier;
+	extern size_t multiplier;
 
-	int i;
+	size_t i;
 
 	for (i = 0; i < (rows - 1) / 2 * (multiplier ? multiplier : 1); i++)
 		scroll_down();
@@ -115,9 +115,9 @@ a_half_page_down(void)
 void
 a_page_up(void)
 {
-	extern int multiplier;
+	extern size_t multiplier;
 
-	int i;
+	size_t i;
 
 	for (i = 0; i < (rows - 2) * (multiplier ? multiplier : 1); i++)
 		scroll_up();
@@ -129,9 +129,9 @@ a_page_up(void)
 void
 a_page_down(void)
 {
-	extern int multiplier;
+	extern size_t multiplier;
 
-	int i;
+	size_t i;
 
 	for (i = 0; i < (rows - 2) * (multiplier ? multiplier : 1); i++)
 		scroll_down();
@@ -143,9 +143,9 @@ a_page_down(void)
 void
 a_scroll_up(void)
 {
-	extern int multiplier;
+	extern size_t multiplier;
 
-	int i;
+	size_t i;
 
 	for (i = 0; i < (multiplier ? multiplier : 1); i++)
 		scroll_up();
@@ -157,9 +157,9 @@ a_scroll_up(void)
 void
 a_scroll_down(void)
 {
-	extern int multiplier;
+	extern size_t multiplier;
 
-	int i;
+	size_t i;
 
 	for (i = 0; i < (multiplier ? multiplier : 1); i++)
 		scroll_down();
@@ -171,9 +171,9 @@ a_scroll_down(void)
 void
 a_cursor_down(void)
 {
-	extern int multiplier;
+	extern size_t multiplier;
 
-	int i;
+	size_t i;
 
 	for (i = 0; i < (multiplier ? multiplier : 1); i++)
 		cursor_down();
@@ -185,9 +185,9 @@ a_cursor_down(void)
 void
 a_cursor_up(void)
 {
-	extern int multiplier;
+	extern size_t multiplier;
 
-	int i;
+	size_t i;
 
 	for (i = 0; i < (multiplier ? multiplier : 1); i++)
 		cursor_up();
@@ -199,19 +199,19 @@ a_cursor_up(void)
 void
 a_editor(void)
 {
-	extern char *filename;
-	extern FILE *file;
-	extern int   n_top;
+	extern char   *filename;
+	extern FILE   *file;
+	extern size_t  n_top;
 
+	size_t top = n_top;
 	char *editor = getenv("EDITOR"), command[MAX_LENGTH];
-	int top = n_top;
 
 	if (!filename)
 		return;
 
 	/* open filename with "$EDITOR" at line n_top */
 	fputs("\033[?6c", stderr);
-	sprintf(command, "%s +%d %s", editor, n_top, filename);
+	sprintf(command, "%s +%ld %s", editor, n_top, filename);
 	if (system(command))
 		return;
 	fputs("\033[?12c", stderr);

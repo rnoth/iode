@@ -33,7 +33,7 @@
  * Returns the number of bytes for the first rune of `str`: 1, 2, 3, 4 or 0 for
  * malformed UTF-8.
  */
-int
+static int
 utf8_byte_count(char *str)
 {
 	int n = 1;
@@ -109,25 +109,6 @@ utf8_rune(long *rune, char str[])
 
 
 /*
- * Decode the exactly `size` first bytes of the UTF-8 string `str` into `text`.
- * `text` gets allocated to the array of .
- */
-size_t
-utf8_decode(long *text[], char str[], size_t size)
-{
-	size_t i;
-	char *first = str;
-
-	*text = malloc(sizeof (long) * size);
-
-	for (i = 0; (long) size > str - first; i++)
-		str = utf8_rune(&(*text)[i], str);
-
-	return i;
-}
-
-
-/*
  * Set `str` to the UTF-8 representation of `rune` and return its length.
  */
 size_t
@@ -151,4 +132,89 @@ utf8_encode(char *str, long rune)
 	str[0] |= rune | 1 << 7;
 
 	return n;
+}
+
+
+/*
+ * Decode the exactly `size` first bytes of the UTF-8 string `str` into `text`.
+ * `text` gets allocated to the array of .
+ */
+size_t
+utf8_decode(long *text[], char str[], size_t size)
+{
+	size_t i;
+	char *first = str;
+
+	*text = malloc(sizeof (long) * size);
+
+	for (i = 0; (long) size > str - first; i++)
+		str = utf8_rune(&(*text)[i], str);
+
+	return i;
+}
+
+
+/*
+ * Fill `str` with a printable representation of `rune` and return 1 if the
+ * rune is printable and 0 if not.
+ */
+int
+utf8_printable(char *str, long rune)
+{
+	/* char not properly encoded in UTF-8 */
+	if (rune < 0) {
+		sprintf(str, "%02lx", -rune);
+
+	/* ASCII control characters */
+	} else if (0 <= rune && rune < ' ' && rune != '\t') {
+		sprintf(str, "^%c", str[1] = (char) rune + '@');
+
+	} else if (rune == 0x7f) {
+		sprintf(str, "^?");
+
+	/* Unicode control characters */
+	} else if (0x80 <= rune && rune < 0xa0) {
+		sprintf(str, "[%c]", str[1] = (char) rune + '@' - 0x80);
+
+	/* non-breaking space */
+	} else if (rune == 0xa0) {
+		sprintf(str, "[%c]", ' ');
+
+	/* soft hyphen */
+	} else if (rune == 0xad) {
+		sprintf(str, "[%c]", '-');
+
+	/* valid UTF-8 but not printable Unicode code points */
+	} else if (
+		/* outside Unicode range */
+		(rune > 0x10ffff)                      ||
+
+		/* noncharacters */
+		(0xfdd0 <= rune && rune <=0xfdef )     ||
+		(rune % 0x10000 == 0xfffe)             ||
+		(rune % 0x10000 == 0xffff)             ||
+
+		/* private use characters */
+		(0xe000 <= rune && rune <= 0xf8ff)     ||
+		(0xf0000 <= rune && rune <= 0xffffd)   ||
+		(0x100000 <= rune && rune <= 0x10fffd) ||
+
+		/* surrogates */
+		(0xd800 <= rune && rune <= 0xdfff)
+	) {
+		sprintf(str, "[%lx]", rune);
+
+	/* valid unicode characters */
+	} else {
+		char s[5] = {'\0', '\0', '\0', '\0', '\0'};
+
+		utf8_encode(s, rune);
+
+		strncpy(str, s, 4);
+		str[5] = '\0';
+
+		return 1;
+	}
+
+	return 0;
 }

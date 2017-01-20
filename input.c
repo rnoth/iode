@@ -25,7 +25,7 @@
 char
 get_key(FILE *tty_fp)
 {
-	extern int multiplier;
+	extern size_t multiplier;
 	extern char input[];
 
 	char key = fgetc(tty_fp);
@@ -33,7 +33,7 @@ get_key(FILE *tty_fp)
 	multiplier = 0;
 	while (key >= '0' && key <= '9' && multiplier < 1000) {
 		multiplier = multiplier * 10 + (key - '0');
-		sprintf(input, "%d", multiplier);
+		sprintf(input, "%ld", multiplier);
 		update_status_line();
 		key = fgetc(tty_fp);
 	}
@@ -50,7 +50,8 @@ get_key(FILE *tty_fp)
 int
 get_input()
 {
-	extern int multiplier, mode;
+	extern size_t multiplier;
+	extern int    mode;
 
 	FILE *tty_fp = NULL;
 	void (*keys[LAST][128])();

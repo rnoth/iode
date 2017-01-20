@@ -88,8 +88,7 @@ set_flag(char flag, int value)
 int
 main(int argc, char *argv[])
 {
-	extern int flags[];
-	extern int n_top;
+	extern size_t n_top;
 
 	int i, j;
 	char *filename = NULL;
@@ -113,7 +112,7 @@ main(int argc, char *argv[])
 
 		} else {
 			for (j = 1; argv[i][j]; j++) {
-				if (!set_flag(argv[i][j], argv[i][0] == '-')) {
+				if (!set_flag(argv[i][j], argv[i][0] == '+')) {
 					usage();
 				}
 			}
@@ -124,7 +123,7 @@ main(int argc, char *argv[])
 
 	set_terminal(RAW);
 
-	fputs("\033[0;0H", stderr);
+	fputs("\033[H", stderr);
 	update_terminal_size();
 	draw_screen();
 
@@ -132,7 +131,7 @@ main(int argc, char *argv[])
 
 	/* reset the terminal */
 	update_terminal_size();
-	fprintf(stderr, "\033[%d;0H\n", cols);
+	fprintf(stderr, "\033[%ldH\n", cols);
 	set_terminal(RESET);
 
 	fclose(file);

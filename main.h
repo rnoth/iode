@@ -1,7 +1,7 @@
 /* constants */
 
 #define MAX_LENGTH   2048
-#define FLAGS "abcdefghijklmnopqrstuvwxy"
+#define FLAGS        "abcdefghijklmnopqrstuvwxy"
 
 
 /* macros */
@@ -27,7 +27,7 @@ struct line {
 };
 
 struct cursor {
-	int l, c;  /* cursor position in line and columns */
+	size_t l, c;  /* cursor position in line and columns */
 };
 
 
@@ -36,15 +36,16 @@ struct cursor {
 /* mode state */
 char input[MAX_LENGTH];
 int flags[128];  /* command line and interactive options */
-int multiplier, mode;
+size_t multiplier;
+int mode;
 
 /* terminal */
 int tty_fd;
-int rows, cols;
+size_t rows, cols;
 
 /* buffer */
-struct line *l_top, *l_current, *l_selected, *l_first, *l_last;
-int n_total, n_top,  n_current,  n_selected, n_col_current, n_col_selected;
+struct line    *l_top, *l_current, *l_selected, *l_first, *l_last;
+size_t n_total, n_top,  n_current,  n_selected, n_col_current, n_col_selected;
 char *filename;
 FILE *file;
 
@@ -55,14 +56,15 @@ FILE *file;
 void die(const char *);
 int  set_flag(char, int);
 
+/* utf8 */
+int    utf8_printable(char *str, long rune);
+size_t utf8_encode(char [], long);
+size_t utf8_decode(long *[], char [], size_t);
+
 /* buffer */
 struct line * new_line(char *s, size_t);
 void read_buffer(char *filename);
 void free_buffer(struct line *);
-
-/* utf8 */
-size_t utf8_encode(char [], long);
-size_t utf8_decode(long *[], char [], size_t);
 
 /* draw */
 void draw_line(struct line *, int);

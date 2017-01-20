@@ -1,4 +1,4 @@
-CFLAGS    = -std=c89 -pedantic -Wall -Wextra -g -static
+CFLAGS    = -std=c89 -pedantic -Wall -Wextra -g -static #-Wconversion
 SRC       = main.c buffer.c actions.c draw.c edit.c utf8.c input.c
 OBJ       = ${SRC:.c=.o}
 NAME      = iode
