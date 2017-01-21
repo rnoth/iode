@@ -107,25 +107,34 @@ draw_line(struct line *line, size_t number)
 {
 	extern struct line *l_current;
 	extern size_t cols;
+	extern int flags[];
 
 	/* 18 is length of "\033[1;3?m????????\033[m" */
 	char str[18 * MAX_LENGTH + 1] = "";
-	size_t col = 8;
+	size_t col = flags['N'] ? 8 : 0;
 
 	if (!line) {
-		fputs("\r      \033[1;30m.\033[m\033[K\n", stderr);
+		fputs(
+			flags['N'] ?
+				"\r      \033[1;30m.\033[m" "\033[K\n" :
+				"\r"                        "\033[K\n", stderr
+		);
 		return;
 	}
 
 	line_printable(str, line, col);
 
-	fprintf(
-		stderr,
-		line == l_current ?
-		"\r\033[K\033[1m"    "%7ld\033[m %s\n" :
-		"\r\033[K\033[1;30m" "%7ld\033[m %s\n",
-		number, str
-	);
+	if (flags['N']) {
+		fprintf(
+			stderr,
+			line == l_current ?
+				"\r\033[K\033[1m"    "%7ld\033[m %s\n" :
+				"\r\033[K\033[1;30m" "%7ld\033[m %s\n",
+			number, str
+		);
+	} else {
+		fprintf(stderr, "\r\033[K%s\n", str);
+	}
 }
 
 
