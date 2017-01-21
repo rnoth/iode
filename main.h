@@ -1,7 +1,7 @@
 /* constants */
 
 #define MAX_LENGTH   2048
-#define FLAGS        "abcdefghijklmnopqrstuvwxy"
+#define FLAGS        "R"
 
 
 /* macros */

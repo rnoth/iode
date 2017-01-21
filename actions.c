@@ -224,24 +224,25 @@ a_editor(void)
 	for (; top > 1; top--)
 		scroll_down();
 	cursor_follow_screen();
-
 	draw_screen();
 }
 
 
 void
-a_add_flag()
+a_add_flag(void)
 {
 	extern FILE *tty_fp;
 
 	set_flag((char) fgetc(tty_fp), 1);
+	draw_screen();
 }
 
 
 void
-a_remove_flag()
+a_remove_flag(void)
 {
 	extern FILE *tty_fp;
 
 	set_flag((char) fgetc(tty_fp), 0);
+	draw_screen();
 }

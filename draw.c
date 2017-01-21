@@ -13,23 +13,56 @@
 
 
 /*
+ * Check if `rune[0]` is an escape sequence, and if so, fill str with it and
+ * return the length of the escape sequence.
+ */
+int
+escape(char *str, long rune[]) {
+	int i = 0;
+
+	if (!flags['R']) {
+		return 0;
+
+	} else if (rune[i] == '\033') {
+		for (i = 0; rune[i] < 0x80 && !isalpha(rune[i]); i++)
+			str[i] = (char) rune[i];
+
+		str[i + 1] = rune[i + 1];
+		str[i + 2] = '\0';
+
+		return i;
+	}
+
+	return 0;
+}
+
+
+/*
  * Return a printable form of line that fits into the screen.
  */
 void
 line_printable(char str[], struct line *line, size_t col)
 {
 	extern size_t cols;
+	extern int flags[];
 
 	size_t i;
 
 	/* print `line` until the screen is filled */
 	for (i = 0; i < line->length && cols - col > 0; i++) {
 		char s[18] = "";
-		int  isprintable = utf8_printable(s, line->text[i]);
+		int  esc, print;
 
-		col += (!isprintable) ? strlen(s) :
-			(line->text[i] == '\t') ?  8 - col % 8 :
-			1;
+		if ((esc = escape(&str[strlen(str)], &line->text[i]))) {
+			i += esc - 1;
+			col--;
+			continue;
+
+		} else if ((print = utf8_printable(s, line->text[i]))) {
+			col +=(line->text[i] == '\t') ?  8 - col % 8 : 1;
+		} else {
+			col += strlen(s);
+		}
 
 		/* not enough space to fit next char onscreen */
 		if (col > cols || (col == cols && line->length > i)) {
@@ -37,7 +70,7 @@ line_printable(char str[], struct line *line, size_t col)
 			break;
 		}
 
-		if (isprintable) {
+		if (print) {
 			strcat(str, s);
 		} else {
 			sprintf(str + strlen(str), "\033[36m%s\033[m", s);

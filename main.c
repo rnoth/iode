@@ -79,9 +79,9 @@ set_flag(char flag, int value)
 {
 	extern int flags[];
 
-	flags[tolower(flag)] = value;
+	flags[(int) flag] = value;
 
-	return strchr(FLAGS, tolower(flag)) != NULL;
+	return strchr(FLAGS, flag) != NULL;
 }
 
 
