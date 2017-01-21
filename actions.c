@@ -234,7 +234,7 @@ a_add_flag()
 {
 	extern FILE *tty_fp;
 
-	set_flag(fgetc(tty_fp), 1);
+	set_flag((char) fgetc(tty_fp), 1);
 }
 
 
@@ -243,5 +243,5 @@ a_remove_flag()
 {
 	extern FILE *tty_fp;
 
-	set_flag(fgetc(tty_fp), 0);
+	set_flag((char) fgetc(tty_fp), 0);
 }

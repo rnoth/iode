@@ -13,23 +13,14 @@
 
 
 /*
- * Draw a full line up to the width of the screen.
+ * Return a printable form of line that fits into the screen.
  */
 void
-draw_line(struct line *line, int number)
+line_printable(char str[], struct line *line, size_t col)
 {
-	extern struct line *l_current;
 	extern size_t cols;
 
-	/* 18 is length of "\033[1;3?m????????\033[m" */
-	char str[18 * MAX_LENGTH + 1] = "";
 	size_t i;
-	size_t col = 8;
-
-	if (!line) {
-		fputs("\r      \033[1;30m.\033[m\033[K\n", stderr);
-		return;
-	}
 
 	/* print `line` until the screen is filled */
 	for (i = 0; i < line->length && cols - col > 0; i++) {
@@ -52,12 +43,34 @@ draw_line(struct line *line, int number)
 			sprintf(str + strlen(str), "\033[36m%s\033[m", s);
 		}
 	}
+}
+
+
+/*
+ * Draw a full line up to the width of the screen.
+ */
+void
+draw_line(struct line *line, size_t number)
+{
+	extern struct line *l_current;
+	extern size_t cols;
+
+	/* 18 is length of "\033[1;3?m????????\033[m" */
+	char str[18 * MAX_LENGTH + 1] = "";
+	size_t col = 8;
+
+	if (!line) {
+		fputs("\r      \033[1;30m.\033[m\033[K\n", stderr);
+		return;
+	}
+
+	line_printable(str, line, col);
 
 	fprintf(
 		stderr,
 		line == l_current ?
-		"\r\033[K\033[1m"    "%7d\033[m %s\n" :
-		"\r\033[K\033[1;30m" "%7d\033[m %s\n",
+		"\r\033[K\033[1m"    "%7ld\033[m %s\n" :
+		"\r\033[K\033[1;30m" "%7ld\033[m %s\n",
 		number, str
 	);
 }
@@ -67,7 +80,7 @@ draw_line(struct line *line, int number)
  * Update one line without changing the cursor.
  */
 void
-update_line(struct line *line, int number)
+update_line(struct line *line, size_t number)
 {
 	extern size_t n_top, rows;
 
@@ -136,7 +149,7 @@ draw_screen(void)
 	extern size_t   n_top, rows;
 
 	struct line *l = l_top;
-	int n, r;
+	size_t n, r;
 
 	update_terminal_size();
 	n = n_top; r = rows;

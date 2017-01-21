@@ -68,16 +68,16 @@ void read_buffer(char *filename);
 void free_buffer(struct line *);
 
 /* draw */
-void draw_line(struct line *, int);
-void update_line(struct line *, int);
+void draw_line(struct line *, size_t);
+void update_line(struct line *, size_t);
 void update_status_line(void);
 void update_cursor(void);
 void update_terminal_size(void);
 void draw_screen(void);
 void scroll_up(void);
 void scroll_down(void);
-void cursor_follow_screen();
-void screen_focus_cursor();
+void cursor_follow_screen(void);
+void screen_focus_cursor(void);
 
 /* input */
 int  get_input(void);

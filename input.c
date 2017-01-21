@@ -28,7 +28,7 @@ get_key(FILE *tty_fp)
 	extern size_t multiplier;
 	extern char input[];
 
-	char key = fgetc(tty_fp);
+	char key = (char) fgetc(tty_fp);
 
 	multiplier = 0;
 	while (key >= '0' && key <= '9' && multiplier < 1000) {

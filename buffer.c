@@ -55,7 +55,7 @@ read_line(char **str, FILE *file)
 	*str = malloc(sizeof(char) * n);
 
 	while ((c = fgetc(file)) != EOF && (c != '\n')) {
-		(*str)[i] = c;
+		(*str)[i] = (char) c;
 
 		if (i >= n - 16) {
 			n += BUFSIZ;

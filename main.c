@@ -107,7 +107,7 @@ main(int argc, char *argv[])
 			for (n_top = 1, j = 1; argv[i][j]; j++) {
 				if (argv[i][j] < '0' || argv[i][j] > '9')
 					usage();
-				n_top = 10 * n_top + argv[i][j] - '0';
+				n_top = 10 * n_top + (unsigned) argv[i][j] - '0';
 			}
 
 		} else {

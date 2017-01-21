@@ -133,10 +133,10 @@ utf8_decode(long *text[], char str[], size_t size)
 size_t
 utf8_encode(char *str, long rune)
 {
-	int i, n = utf8_required_bytes(rune);
+	size_t i, n = utf8_required_bytes(rune);
 
 	if (rune < 0x80) {
-		str[0] = rune;
+		str[0] = (char) rune;
 		return 1;
 	}
 
