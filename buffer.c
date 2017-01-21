@@ -50,7 +50,7 @@ size_t
 read_line(char **str, FILE *file)
 {
 	size_t i = 0, n = 1 << 7;
-	char c;
+	int c;
 
 	*str = malloc(sizeof(char) * n);
 

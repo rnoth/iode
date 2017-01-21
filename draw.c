@@ -41,7 +41,7 @@ draw_line(struct line *line, int number)
 			1;
 
 		/* not enough space to fit next char onscreen */
-		if (col > cols || (col == cols && i < line->length)) {
+		if (col > cols || (col == cols && line->length > i)) {
 			strcat(str, "\033[1;31m>\033[m");
 			break;
 		}

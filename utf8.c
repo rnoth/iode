@@ -109,6 +109,25 @@ utf8_rune(long *rune, char str[])
 
 
 /*
+ * Decode the exactly `size` first bytes of the UTF-8 string `str` into `text`.
+ * `text` gets allocated to the array of .
+ */
+size_t
+utf8_decode(long *text[], char str[], size_t size)
+{
+	size_t i;
+	char *first = str;
+
+	*text = malloc(sizeof (long) * size);
+
+	for (i = 0; (long) size > str - first; i++)
+		str = utf8_rune(&(*text)[i], str);
+
+	return i;
+}
+
+
+/*
  * Set `str` to the UTF-8 representation of `rune` and return its length.
  */
 size_t
@@ -136,25 +155,6 @@ utf8_encode(char *str, long rune)
 
 
 /*
- * Decode the exactly `size` first bytes of the UTF-8 string `str` into `text`.
- * `text` gets allocated to the array of .
- */
-size_t
-utf8_decode(long *text[], char str[], size_t size)
-{
-	size_t i;
-	char *first = str;
-
-	*text = malloc(sizeof (long) * size);
-
-	for (i = 0; (long) size > str - first; i++)
-		str = utf8_rune(&(*text)[i], str);
-
-	return i;
-}
-
-
-/*
  * Fill `str` with a printable representation of `rune` and return 1 if the
  * rune is printable and 0 if not.
  */
@@ -167,14 +167,14 @@ utf8_printable(char *str, long rune)
 
 	/* ASCII control characters */
 	} else if (0 <= rune && rune < ' ' && rune != '\t') {
-		sprintf(str, "^%c", str[1] = (char) rune + '@');
+		sprintf(str, "^%c", (char) rune + '@');
 
 	} else if (rune == 0x7f) {
 		sprintf(str, "^?");
 
 	/* Unicode control characters */
 	} else if (0x80 <= rune && rune < 0xa0) {
-		sprintf(str, "[%c]", str[1] = (char) rune + '@' - 0x80);
+		sprintf(str, "[%c]", (char) rune + '@' - 0x80);
 
 	/* non-breaking space */
 	} else if (rune == 0xa0) {
