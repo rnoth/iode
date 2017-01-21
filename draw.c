@@ -75,9 +75,9 @@ update_line(struct line *line, int number)
 	if (number - (n_top - 1) > rows)
 		return;
 
-	fprintf(stderr, "\033[s\033[%ld;0H", number - (n_top - 1));
+	fprintf(stderr, "\033[%ld;0H", number - (n_top - 1));
 	draw_line(line, number);
-	fputs("\033[u", stderr);
+	update_cursor();
 }
 
 
@@ -141,14 +141,12 @@ draw_screen(void)
 	update_terminal_size();
 	n = n_top; r = rows;
 
-	fputs("\033[s\033[H", stderr);
+	fputs("\033[H", stderr);
 
 	for (; r > 1; l = l ? l->next : NULL, r--, n++)
 		draw_line(l, n);
 
 	draw_status_line();
-
-	fputs("\033[u", stderr);
 
 	update_cursor();
 }

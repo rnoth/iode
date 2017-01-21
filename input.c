@@ -52,8 +52,8 @@ get_input()
 {
 	extern size_t multiplier;
 	extern int    mode;
+	extern FILE *tty_fp;
 
-	FILE *tty_fp = NULL;
 	void (*keys[LAST][128])();
 
 #include "keys.h"

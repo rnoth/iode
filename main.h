@@ -40,7 +40,8 @@ size_t multiplier;
 int mode;
 
 /* terminal */
-int tty_fd;
+int   tty_fd;
+FILE *tty_fp;
 size_t rows, cols;
 
 /* buffer */
@@ -99,3 +100,5 @@ void a_scroll_down(void);
 void a_cursor_up(void);
 void a_cursor_down(void);
 void a_editor(void);
+void a_add_flag(void);
+void a_remove_flag(void);

@@ -227,3 +227,21 @@ a_editor(void)
 
 	draw_screen();
 }
+
+
+void
+a_add_flag()
+{
+	extern FILE *tty_fp;
+
+	set_flag(fgetc(tty_fp), 1);
+}
+
+
+void
+a_remove_flag()
+{
+	extern FILE *tty_fp;
+
+	set_flag(fgetc(tty_fp), 0);
+}

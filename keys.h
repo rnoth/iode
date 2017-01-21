@@ -18,3 +18,5 @@ keys[PAGER][CONTROL('J')] = a_scroll_down;
 keys[PAGER][CONTROL('E')] = a_scroll_down;
 keys[PAGER]['k']          = a_cursor_up;
 keys[PAGER]['j']          = a_cursor_down;
+keys[PAGER]['+']          = a_add_flag;
+keys[PAGER]['-']          = a_remove_flag;
