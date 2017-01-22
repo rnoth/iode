@@ -17,20 +17,42 @@
  * return the length of the escape sequence.
  */
 int
-escape(char *str, long rune[]) {
-	int i = 0;
+escape(char *str, long rune[], size_t *col) {
 
 	if (!flags['R']) {
 		return 0;
 
-	} else if (rune[i] == '\033') {
-		for (i = 0; rune[i] < 0x80 && !isalpha(rune[i]); i++)
+	/* ansi secape sequence "\033[[^A-Za-z][A-Za-z]" */
+	} else if (rune[0] == '\033') {
+		int i = 0;
+		for (i = 0; rune[0] < 0x80 && !isalpha(rune[i]); i++)
 			str[i] = (char) rune[i];
 
 		str[i + 1] = rune[i + 1];
 		str[i + 2] = '\0';
 
+		(*col)--;
 		return i;
+
+	/* ^H bold */
+	} else if (rune[1] == '\b' && rune[0] == rune[2] && rune[0]) {
+		sprintf(str, "\033[1m%c\033[m", (char) rune[0]);
+
+		(*col)++;
+		return 3;
+
+	/* ^H underline */
+	} else if (rune[1] == '\b' && rune[0] == '_') {
+		sprintf(str, "\033[4m%c\033[m", (char) rune[2]);
+
+		(*col)++;
+		return 3;
+
+	/* non-breaking space */
+	} else if (rune[0] == 0xa0) {
+		str[0] = ' ';
+		(*col)++;
+		return 1;
 	}
 
 	return 0;
@@ -51,12 +73,10 @@ line_printable(char str[], struct line *line, size_t col)
 	/* print `line` until the screen is filled */
 	for (i = 0; i < line->length && cols - col > 0; i++) {
 		char s[18] = "";
-		int  esc, print;
+		int  esc = 0, print = 1;
 
-		if ((esc = escape(&str[strlen(str)], &line->text[i]))) {
+		if ((esc = escape(s, &line->text[i], &col))) {
 			i += esc - 1;
-			col--;
-			continue;
 
 		} else if ((print = utf8_printable(s, line->text[i]))) {
 			col +=(line->text[i] == '\t') ?  8 - col % 8 : 1;
