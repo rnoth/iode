@@ -21,4 +21,4 @@ install: ${NAME}
 	cp *.1 $(MANPREFIX)/man/man1/
 	cp ${NAME} $(PREFIX)/bin/
 
-.PHONY clean
+.PHONY: clean
