@@ -5,14 +5,13 @@ NAME      = iode
 
 MANPREFIX = $(PREFIX)
 
-all: clean ${NAME}
+all: ${NAME}
 
 .c.o:
 	${CC} -c ${CFLAGS} $<
 
 ${NAME}: ${OBJ}
 	${CC} -o $@ ${OBJ} ${LDFLAGS}
-	rm -f *.o
 
 clean:
 	rm -f ${NAME} ${OBJ}
@@ -21,3 +20,5 @@ install: ${NAME}
 	mkdir -p  $(PREFIX)/bin $(MANPREFIX)/man/man1
 	cp *.1 $(MANPREFIX)/man/man1/
 	cp ${NAME} $(PREFIX)/bin/
+
+.PHONY clean
